@@ -1,0 +1,53 @@
+html
+  head
+    title Home
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+
+    style.
+      body { font-family: sans-serif; margin: 30px; }
+      table { border-collapse: collapse; }
+      td { border: solid 1px #ccc; padding: 8px; }
+      tr td:first-child { font-weight: bold; }
+      .buttons { margin-top: 20px; }
+      .buttons a { display: inline-block; margin-right: 10px; }
+
+  body
+    
+    h1 Subscription
+    if sub
+      table
+        tbody
+          tr
+            td Plan
+            td= sub.plan.name
+          tr
+            td Status
+            td= sub.status
+          tr
+            td Card
+            td= sub.card.summary
+          tr
+            td VAT
+            td= sub.customer.vat
+      .buttons
+        a(href="/card?customer="+customer) Change Card
+        if sub.cancelled
+          a(href="/reactivate?customer="+customer) Reactivate Subscription
+        else
+          a(href="/cancel?customer="+customer) Cancel Subscription
+    else
+      p No active subscription.
+      .buttons
+        a(href="/upgrade?customer="+customer) Upgrade
+
+    if receipts.length
+      h2 Receipts
+      table
+        tbody
+          each e in receipts
+            tr
+              td= e.date
+              td $#{e.amount/100}
+              td 
+                a(href=e.url) Save
+              

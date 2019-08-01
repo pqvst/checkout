@@ -1,0 +1,10 @@
+html
+  head
+    title= checkout.title
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    script(src="https://js.stripe.com/v3/")
+    script(src="/js/checkout.js")
+  body
+    #checkout
+    script.
+      Checkout(!{JSON.stringify(checkout)});
