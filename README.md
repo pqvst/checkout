@@ -1,5 +1,5 @@
 # Checkout
-A simple, lightweight, checkout page for Stripe SaaS subscriptions. The library contains server-side wrappers for managing Stripe subscriptions. The client-side library contains a pre-built payment form. Supports VAT validation and coupon codes. Supports single subscriptions and single cards per customer.
+A simple, lightweight, checkout page for Stripe SaaS subscriptions. The library contains server-side wrappers for managing Stripe subscriptions. The client-side library contains a pre-built payment form. Supports VAT validation and coupon codes. Currently only supports single subscriptions and single cards per customer. SCA compatible with 3D Secure 2 authentication.
 
 ```
 npm i checkout
