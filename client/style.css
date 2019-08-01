@@ -1,0 +1,255 @@
+body {
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Ubuntu,sans-serif;
+  color: #303030;
+  font-size: 16px;
+  margin: 0;
+}
+
+
+/* --------------------------------------------------------------------------------- */
+/* Vue Cloak */
+/* --------------------------------------------------------------------------------- */
+
+[v-cloak] {
+  display: none;
+}
+
+
+/* --------------------------------------------------------------------------------- */
+/* Spinner Overlay */
+/* --------------------------------------------------------------------------------- */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255,255,255,0.8);
+  z-index: 9999;
+}
+
+.overlay .error {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.spinner {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  left: 50%;
+  top: 40%;
+  margin-left: -50px;
+  margin-top: -50px;
+  opacity: 0.4;
+
+  display: inline-block;
+  width: 100px;
+  height: 100px;
+  border: 3px solid rgba(0,0,0,.3);
+  border-radius: 50%;
+  border-top-color: #000;
+  animation: spin 1s linear infinite;
+  -webkit-animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { -webkit-transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+  to { -webkit-transform: rotate(360deg); }
+}
+
+
+/* --------------------------------------------------------------------------------- */
+/* Header */
+/* --------------------------------------------------------------------------------- */
+
+.logo img {
+  max-height: 40px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+}
+
+.header {
+  color: #727272;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 500;
+  margin-bottom: 30px;
+}
+
+
+/* --------------------------------------------------------------------------------- */
+/* Container */
+/* --------------------------------------------------------------------------------- */
+
+.container {
+  padding: 15px;
+  max-width: 380px;
+  margin: 0 auto;
+  margin-top: 50px;
+}
+
+@media screen and (max-width: 650px) {
+  .container {
+    margin-top: 30px;
+  }
+}
+
+
+/* --------------------------------------------------------------------------------- */
+/* Form */
+/* --------------------------------------------------------------------------------- */
+
+label {
+  display: block;
+  margin-top: 30px;
+  color: #565656;
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 5px;
+  position: relative;
+}
+
+button {
+  margin-top: 30px;
+  box-shadow: inset 0 0 0 1px rgba(50,50,93,.1), 0 2px 5px 0 rgba(50,50,93,.1), 0 1px 1px 0 rgba(0,0,0,.07);
+  border-radius: 6px;
+  width: 100%;
+  background-color: #2e5c8a;
+  color: white;
+  padding: 12px 12px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+select, input {
+  padding: 8px 12px;
+  color: #303030;
+  font-size: 16px;
+  box-shadow: 0 0 0 1px #e0e0e0, 0 2px 4px 0 rgba(0,0,0,.07), 0 1px 1.5px 0 rgba(0,0,0,.05);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  width: 100%;
+  border-radius: 6px;
+  height: 44px;
+  background-color: white;
+}
+
+select:focus, input:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(50,151,211,.3), 0 1px 1px 0 rgba(0,0,0,.07), 0 0 0 4px rgba(50,151,211,.3);
+}
+
+.select {
+  position: relative;
+}
+
+.select svg {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  pointer-events: none;
+}
+
+[disabled] {
+  border: 1px solid #e7e7e7;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  box-shadow: none;
+  color: #727272;
+}
+
+.card {
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px #e0e0e0, 0 2px 4px 0 rgba(0,0,0,.07), 0 1px 1.5px 0 rgba(0,0,0,.05);
+  overflow: hidden;
+}
+
+.flex {
+  display: flex;
+  border-top: solid 1px #e0e0e0
+}
+
+.flex > div {
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+.flex > div + div {
+  border-left: solid 1px #e0e0e0;
+}
+
+.stripe-input {
+  background: white;
+  padding: 12px 12px;
+}
+
+
+/* --------------------------------------------------------------------------------- */
+/* Disclaimer
+/* --------------------------------------------------------------------------------- */
+
+.disclaimer {
+  color: #909090;
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+
+/* --------------------------------------------------------------------------------- */
+/* Branding
+/* --------------------------------------------------------------------------------- */
+
+.brand {
+  margin-top: 30px;
+  color: #909090;
+  font-size: 12px;
+  text-align: center;
+}
+.brand a {
+  text-decoration: none;
+  color: inherit;
+}
+.brand svg {
+  margin-left: 3px;
+  vertical-align: text-bottom;
+}
+
+
+/* --------------------------------------------------------------------------------- */
+/* Validation
+/* --------------------------------------------------------------------------------- */
+
+.error {
+  color: #dc2727;
+  margin-top: 5px;
+  font-size: 13px;
+}
+
+.alert {
+  position: absolute;
+  right: 0;
+  top: 2px;
+  text-transform: uppercase;
+  color: #dc2727;
+  font-size: 11px;
+}
+
+.invalid {
+  box-shadow: 0 0 0 1px #ef9896, 0 2px 4px 0 rgba(0,0,0,.07), 0 1px 1.5px 0 rgba(0,0,0,.05);
+}
+
+.card.invalid div {
+  border-color: #ef9896;
+}
