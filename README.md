@@ -113,7 +113,7 @@ Generates a client secret required to render the client-side checkout page.
 ### `checkout.getSubscription( stripeCustomerId )`
 Retrieve the current subscription status. Returns `null` if there is no active subscription.
 
-```json
+```js
 { id: 'sub_xxx',
   valid: true,
   cancelled: false,
@@ -182,7 +182,7 @@ taxOrigin: EU-country AND country == reverse
 
 Individual tax rates per country are supported (e.g. different EU tax rates) as well as a default tax rate that will be applied otherwise.
 
-```json
+```js
 { 
   taxOrigin: 'SE',
   taxRates: { default: '...' } 
@@ -212,7 +212,7 @@ Delete and cancel the customer's subscription.
 ### `checkout.getReceipts( stripeCustomerId )`
 List all recent receipts. Returns an empty array `[]` if an invalid customer ID is provided.
 
-```json
+```js
 [ { date: 'Jul 31, 2019',
     currency: 'usd',
     amount: 499,
