@@ -65,7 +65,7 @@ app.post('/card', async (req, res) => {
     name: req.body.name,
     country: req.body.country,
     vat: req.body.vat,
-    payment_method: req.body.payment_method,
+    paymentMethod: req.body.paymentMethod,
   });
   res.redirect('/?customer=' + req.query.customer);
 });
@@ -99,7 +99,7 @@ app.post('/upgrade', async (req, res) => {
     country: req.body.country,
     vat: req.body.vat,
     coupon: req.body.coupon,
-    payment_method: req.body.payment_method,
+    paymentMethod: req.body.paymentMethod,
   });
   res.redirect('/?customer=' + stripeCustomerId);
 });

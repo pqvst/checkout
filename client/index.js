@@ -80,7 +80,7 @@ function Checkout(opts) {
       country: opts.country,
       coupon: opts.coupon,
       vat: opts.vat,
-      payment_method: '',
+      paymentMethod: '',
       // State
       processing: false,
       countries: COUNTRIES,
@@ -164,7 +164,7 @@ function Checkout(opts) {
         if (hasError) {
           this.processing = false;
         } else {
-          this.payment_method = result.setupIntent.payment_method;
+          this.paymentMethod = result.setupIntent.payment_method;
           this.$nextTick(() => {
             this.$refs.form.submit();
           });

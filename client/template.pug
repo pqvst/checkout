@@ -59,7 +59,7 @@
         input(type="text" name="coupon" v-model="coupon")
 
       //- Payment Method
-      input(type="hidden" name="payment_method" v-model="payment_method")
+      input(type="hidden" name="paymentMethod" v-model="paymentMethod")
 
       //- Submit
       button(type="submit" v-bind:disabled="processing") {{processing ? 'Processing...' : (action || 'Continue')}}
