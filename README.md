@@ -5,9 +5,9 @@ A simple, lightweight, checkout page for Stripe SaaS subscriptions featuring:
 - EU VAT validation
 - Tax rates
 - Coupon codes
-- Only single subscriptions per customer
-- Only single payment methods per customer
 - SCA compliant with 3D Secure 2 authentication
+- Single subscriptions per customer
+- Single payment methods per customer
 
 ## Getting Started
 
@@ -239,6 +239,14 @@ app.get('/validateVatNumber', (req, res) => {
     res.status(valid ? 200 : 400).json({ valid });
   });
 });
+```
+
+Initialize client-side library:
+
+```js
+Checkout({
+  vatValidationUrl: '/validateVatNumber'
+})
 ```
 
 
