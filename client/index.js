@@ -72,8 +72,8 @@ function Checkout(opts) {
       title: opts.title,
       action: opts.action,
       disableEmail: opts.disableEmail,
-      hideVatNumber: opts.hideVatNumber,
-      showCoupon: opts.showCoupon,
+      allowVat: opts.allowVat,
+      allowCoupon: opts.allowCoupon,
       // Fields
       email: opts.email,
       name: opts.name,
@@ -95,13 +95,13 @@ function Checkout(opts) {
     },
 
     computed: {
-      isCountryInEU() {
         return EU_COUNTRY_CODES.includes(this.country);
+      showVat() {
       }
     },
 
     watch: {
-      isCountryInEU(value) {
+      showVat(value) {
         if (!value) {
           this.vat = '';
         }

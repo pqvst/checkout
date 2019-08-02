@@ -46,15 +46,15 @@
           <path d="M10.193 3.97a.75.75 0 0 1 1.062 1.062L6.53 9.756a.75.75 0 0 1-1.06 0L.745 5.032A.75.75 0 0 1 1.807 3.97L6 8.163l4.193-4.193z" fill="#000" fill-rule="evenodd" fill-opacity=".4"></path>
 
       //- VAT number
-      template(v-if="!hideVatNumber")
-        template(v-if="isCountryInEU")
-          label 
+      template(v-if="allowVat")
+        template(v-if="showVat")
+          label
             span VAT number (optional)
             span.alert(v-if="errors.vat") {{errors.vat}}
           input(name="vat" type="text" v-model="vat" v-bind:class="{ invalid: errors.vat }")
 
       //- Coupon
-      template(v-if="showCoupon")
+      template(v-if="allowCoupon")
         label Coupon (optional)
         input(type="text" name="coupon" v-model="coupon")
 
