@@ -95,8 +95,8 @@ function Checkout(opts) {
     },
 
     computed: {
-        return EU_COUNTRY_CODES.includes(this.country);
       showVat() {
+        return this.country != opts.taxOrigin && EU_COUNTRY_CODES.includes(this.country);
       }
     },
 
