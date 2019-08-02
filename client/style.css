@@ -111,6 +111,14 @@ body {
 /* Form */
 /* --------------------------------------------------------------------------------- */
 
+.toggle {
+  text-decoration: underline;
+  font-size: 13px;
+  margin-top: 5px;
+  cursor: pointer;
+  color: #2e5c8a;
+}
+
 label {
   display: block;
   margin-top: 30px;
@@ -197,6 +205,14 @@ select:focus, input:focus {
 .stripe-input {
   background: white;
   padding: 12px 12px;
+}
+
+.stripe-input-prefilled {
+  padding: 12px 12px;
+  height: 43px;
+  background: #f9f9f9;
+  color: #727272;
+  cursor: default;
 }
 
 

@@ -20,13 +20,24 @@
 
       //- Card Information
       label Card information
-      .card(v-bind:class="{ invalid: errors.card }")
-        #card-number.stripe-input
-        .flex
-          #card-expiry.stripe-input
-          #card-cvc.stripe-input
-      .error(v-if="errors.card") {{errors.card}}
-      
+
+      div(v-show="editCard")
+        .card(v-bind:class="{ invalid: errors.card }")
+          #card-number.stripe-input
+          .flex
+            #card-expiry.stripe-input
+            #card-cvc.stripe-input
+        .error(v-if="errors.card") {{errors.card}}
+        .toggle(v-if="card" v-on:click="toggleEditCard") Use saved card information
+
+      div(v-if="!editCard")
+        .card
+          .card-number.stripe-input-prefilled •••• •••• •••• {{card.last4}}
+          .flex
+            .card-expiry.stripe-input-prefilled {{card.exp_month}}/{{card.exp_year}}
+            .card-cvc.stripe-input-prefilled •••
+        .toggle(v-on:click="toggleEditCard") Edit card information
+
       //- Name
       label
         span Name on card

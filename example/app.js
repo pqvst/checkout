@@ -87,6 +87,7 @@ app.get('/upgrade', async (req, res) => {
       name: sub ? sub.customer.name : null,
       country: sub ? sub.customer.country : null,
       vat: sub ? sub.customer.vat : null,
+      card: sub ? sub.card : null,
     }
   });
 });

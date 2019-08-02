@@ -75,6 +75,7 @@ function Checkout(opts) {
       allowVat: opts.allowVat,
       allowCoupon: opts.allowCoupon,
       // Fields
+      card: opts.card,
       email: opts.email,
       name: opts.name,
       country: opts.country,
@@ -82,6 +83,7 @@ function Checkout(opts) {
       vat: opts.vat,
       paymentMethod: '',
       // State
+      editCard: true,
       processing: false,
       countries: COUNTRIES,
       errors: {
@@ -108,6 +110,10 @@ function Checkout(opts) {
       }
     },
 
+    created() {
+      this.editCard = this.card == null;
+    },
+
     mounted() {
       if (stripe) {
         cardNumber.mount('#card-number');
@@ -117,6 +123,10 @@ function Checkout(opts) {
     },
 
     methods: {
+      toggleEditCard() {
+        this.editCard = !this.editCard;
+      },
+
       async submit() {
         let hasError = false;
 
@@ -147,27 +157,31 @@ function Checkout(opts) {
           this.processing = false;
           return;
         }
-        const result = await stripe.handleCardSetup(clientSecret, cardNumber, {
-          payment_method_data: {
-            billing_details: {
-              name: this.name || null,
-              address: {
-                country: this.country || null,
+        if (this.card && !this.editCard) {
+          this.$refs.form.submit();
+        } else {
+          const result = await stripe.handleCardSetup(clientSecret, cardNumber, {
+            payment_method_data: {
+              billing_details: {
+                name: this.name || null,
+                address: {
+                  country: this.country || null,
+                }
               }
             }
-          }
-        });
-        if (result.error) {
-          this.errors.card = result.error.message;
-          hasError = true;
-        }
-        if (hasError) {
-          this.processing = false;
-        } else {
-          this.paymentMethod = result.setupIntent.payment_method;
-          this.$nextTick(() => {
-            this.$refs.form.submit();
           });
+          if (result.error) {
+            this.errors.card = result.error.message;
+            hasError = true;
+          }
+          if (hasError) {
+            this.processing = false;
+          } else {
+            this.paymentMethod = result.setupIntent.payment_method;
+            this.$nextTick(() => {
+              this.$refs.form.submit();
+            });
+          }
         }
       }
     }
