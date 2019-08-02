@@ -1,0 +1,12 @@
+{
+  "extends": [
+    "../.eslintrc.json"
+  ],
+  "env": {
+    "es6": true,
+    "browser": true
+  },
+  "globals": {
+    "Stripe": true
+  }
+}
