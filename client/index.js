@@ -149,7 +149,7 @@ function Checkout(opts) {
         }
         const result = await stripe.handleCardSetup(clientSecret, cardNumber, {
           payment_method_data: {
-            billing_details: { 
+            billing_details: {
               name: this.name || null,
               address: {
                 country: this.country || null,

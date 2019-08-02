@@ -49,7 +49,7 @@ app.get('/card', async (req, res) => {
       title: 'Update card details',
       action: 'Save',
       // Don't show coupon when updating card
-      showCoupon: false, 
+      showCoupon: false,
       // Pre-fill values from existing subscription
       email: sub ? sub.customer.email : null,
       name: sub ? sub.customer.name : null,
@@ -117,4 +117,4 @@ app.get('/reactivate', async (req, res) => {
 });
 
 
-app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
+app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));
