@@ -245,7 +245,8 @@ Initialize client-side library:
 
 ```js
 Checkout({
-  vatValidationUrl: '/validateVatNumber'
+  vatValidationUrl: '/validateVatNumber',
+  ...
 })
 ```
 
