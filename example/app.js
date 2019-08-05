@@ -5,6 +5,7 @@ const PORT = 3000;
 
 
 const checkout = require('../lib')(STRIPE_SECRET_KEY);
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
@@ -14,9 +15,9 @@ const morgan = require('morgan');
 const app = express();
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
-app.set('views', '.');
+app.set('views', __dirname);
 app.set('view engine', 'pug');
-app.use('/js/checkout.js', express.static('../dist/checkout.js'));
+app.use('/js/checkout.js', express.static(path.join(__dirname, '../dist/checkout.js')));
 
 
 // Implement endpoint for VAT number validation
