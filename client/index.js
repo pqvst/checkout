@@ -79,6 +79,7 @@ function Checkout(opts) {
       email: opts.email,
       name: opts.name,
       country: opts.country,
+      postcode: opts.postcode,
       coupon: opts.coupon,
       vat: opts.vat,
       paymentMethod: '',
@@ -93,6 +94,7 @@ function Checkout(opts) {
         country: null,
         vat: null,
         card: null,
+        postcode: null,
       }
     },
 
@@ -166,6 +168,7 @@ function Checkout(opts) {
                 name: this.name || null,
                 address: {
                   country: this.country || null,
+                  postal_code: this.postcode || null,
                 }
               }
             }

@@ -16,7 +16,8 @@
       label 
         span Email address
         span.alert(v-if="errors.email") {{errors.email}}
-      input(type="email" name="email" v-model="email" v-bind:class="{ invalid: errors.email }" v-bind:disabled="disableEmail")
+      .field
+        input(type="email" name="email" v-model="email" v-bind:class="{ invalid: errors.email }" v-bind:disabled="disableEmail")
 
       //- Card Information
       label Card information
@@ -42,19 +43,21 @@
       label
         span Name on card
         span.alert(v-if="errors.name") {{errors.name}}
-      input(type="text" name="name" v-model="name" v-bind:class="{ invalid: errors.name }")
+      .field
+        input(type="text" name="name" v-model="name" v-bind:class="{ invalid: errors.name }")
 
       //- Country
-      label 
+      label
         span Country or region
         span.alert(v-if="errors.country") {{errors.country}}
-      .select
-        select(name="country" v-model="country" v-bind:class="{ invalid: errors.country }")
-          option(value='')
-          option(v-for="e in countries" v-bind:value="e.value") {{e.label}}
-          
-        svg(focusable="false" width="12" height="12").
-          <path d="M10.193 3.97a.75.75 0 0 1 1.062 1.062L6.53 9.756a.75.75 0 0 1-1.06 0L.745 5.032A.75.75 0 0 1 1.807 3.97L6 8.163l4.193-4.193z" fill="#000" fill-rule="evenodd" fill-opacity=".4"></path>
+      .field(v-bind:class="{ invalid: errors.country }")
+        .select
+          select(name="country" v-model="country")
+            option(value='')
+            option(v-for="e in countries" v-bind:value="e.value") {{e.label}}
+          svg(focusable="false" width="12" height="12").
+            <path d="M10.193 3.97a.75.75 0 0 1 1.062 1.062L6.53 9.756a.75.75 0 0 1-1.06 0L.745 5.032A.75.75 0 0 1 1.807 3.97L6 8.163l4.193-4.193z" fill="#000" fill-rule="evenodd" fill-opacity=".4"></path>
+        input(v-if="country" name="postcode" type="text" v-model="postcode" v-bind:class="{ invalid: errors.postcode }" placeholder="Post code (if applicable)")
 
       //- VAT number
       template(v-if="allowVat")
@@ -62,12 +65,14 @@
           label
             span VAT number (optional)
             span.alert(v-if="errors.vat") {{errors.vat}}
-          input(name="vat" type="text" v-model="vat" v-bind:class="{ invalid: errors.vat }")
+          .field
+            input(name="vat" type="text" v-model="vat" v-bind:class="{ invalid: errors.vat }")
 
       //- Coupon
       template(v-if="allowCoupon")
         label Coupon (optional)
-        input(type="text" name="coupon" v-model="coupon")
+        .field
+          input(type="text" name="coupon" v-model="coupon")
 
       //- Payment Method
       input(type="hidden" name="paymentMethod" v-model="paymentMethod")
