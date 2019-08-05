@@ -11,7 +11,7 @@ module.exports = {
   },
 
   output: {
-    filename: 'checkout.min.js',
+    filename: 'checkout.js',
   },
 
   module: {
