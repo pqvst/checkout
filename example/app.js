@@ -54,6 +54,7 @@ app.get('/card', async (req, res) => {
       email: sub ? sub.customer.email : null,
       name: sub ? sub.customer.name : null,
       country: sub ? sub.customer.country : null,
+      postcode: sub ? sub.customer.postcode : null,
       vat: sub ? sub.customer.vat : null,
     }
   });
@@ -64,6 +65,7 @@ app.post('/card', async (req, res) => {
     email: req.body.email,
     name: req.body.name,
     country: req.body.country,
+    postcode: req.body.postcode,
     vat: req.body.vat,
     paymentMethod: req.body.paymentMethod,
   });
@@ -86,6 +88,7 @@ app.get('/upgrade', async (req, res) => {
       email: sub ? sub.customer.email : null,
       name: sub ? sub.customer.name : null,
       country: sub ? sub.customer.country : null,
+      postcode: sub ? sub.customer.postcode : null,
       vat: sub ? sub.customer.vat : null,
       card: sub ? sub.card : null,
     }
@@ -98,6 +101,7 @@ app.post('/upgrade', async (req, res) => {
     email: req.body.email,
     name: req.body.name,
     country: req.body.country,
+    postcode: req.body.postcode,
     vat: req.body.vat,
     coupon: req.body.coupon,
     paymentMethod: req.body.paymentMethod,
