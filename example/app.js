@@ -17,6 +17,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.set('views', '.');
 app.set('view engine', 'pug');
 app.use('/js/checkout.js', express.static('../dist/checkout.js'));
+app.use('/.well-known/apple-developer-merchantid-domain-association', express.static('./apple-developer-merchantid-domain-association'));
 
 
 // Implement endpoint for VAT number validation
