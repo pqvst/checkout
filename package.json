@@ -4,6 +4,7 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
+    "start": "nodemon example/app",
     "build": "webpack",
     "watch": "webpack --watch",
     "lint": "eslint . --fix",
