@@ -20,7 +20,9 @@
         input(type="email" name="email" v-model="email" v-bind:class="{ invalid: errors.email }" v-bind:disabled="disableEmail")
 
       //- Card Information
-      label Card information
+      label 
+        span Card information
+        span.alert(v-if="editCardExpired") Expired
 
       div(v-show="editCard")
         .card(v-bind:class="{ invalid: errors.card }")

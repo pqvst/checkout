@@ -10,6 +10,9 @@ import template from './template.pug';
 import COUNTRIES from '../data/countries';
 import EU_COUNTRY_CODES from '../data/eu_country_codes';
 
+// Utilities
+import { isCardExpired } from './util';
+
 
 function Checkout(opts) {
 
@@ -101,6 +104,9 @@ function Checkout(opts) {
     computed: {
       showVat() {
         return this.country != opts.taxOrigin && EU_COUNTRY_CODES.includes(this.country);
+      },
+      editCardExpired() {
+        return !this.editCard && this.card && isCardExpired(this.card.exp_month, this.card.exp_year);
       }
     },
 
