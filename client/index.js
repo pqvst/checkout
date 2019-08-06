@@ -11,7 +11,7 @@ import COUNTRIES from '../data/countries';
 import EU_COUNTRY_CODES from '../data/eu_country_codes';
 
 // Utilities
-import { isCardExpired } from './util';
+import { isCardExpired } from '../lib/util';
 
 
 function Checkout(opts) {
