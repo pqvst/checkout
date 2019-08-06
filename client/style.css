@@ -11,6 +11,21 @@ body {
 
 
 /* --------------------------------------------------------------------------------- */
+/* Fade Transition */
+/* --------------------------------------------------------------------------------- */
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0
+}
+
+
+/* --------------------------------------------------------------------------------- */
 /* Vue Cloak */
 /* --------------------------------------------------------------------------------- */
 
@@ -135,6 +150,12 @@ button {
   border: none;
   cursor: pointer;
   outline: none;
+  transition: all 0.3s ease 0s;
+}
+
+button[disabled] {
+  background-color: #2e5c8a;
+  opacity: 0.8;
 }
 
 .field {

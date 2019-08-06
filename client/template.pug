@@ -3,8 +3,9 @@
   .overlay(v-if="errors.load")
     .error {{errors.load}}
 
-  .overlay(v-show="processing")
-    .spinner
+  transition(name="fade")
+    .overlay(v-show="processing")
+      .spinner
 
   .container
     .header {{header}}
