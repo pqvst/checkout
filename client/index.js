@@ -166,7 +166,7 @@ function Checkout(opts) {
         return !this.editCard && this.values.card && isCardExpired(this.values.card.exp_month, this.values.card.exp_year);
       },
       submitText() {
-        return this.processing ? 'Processing...' : (this.action || 'Continue');
+        return this.action || 'Continue';
       },
       disclaimerText() {
         if (this.fields.disclaimer == true) {
