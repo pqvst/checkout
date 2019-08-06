@@ -183,10 +183,7 @@ select:focus, input:focus {
 }
 
 [disabled] {
-  border: 1px solid #e7e7e7;
-  border-radius: 6px;
   background-color: #f9f9f9;
-  box-shadow: none;
   color: #727272;
 }
 
@@ -236,20 +233,22 @@ select:focus, input:focus {
 
 
 /* --------------------------------------------------------------------------------- */
-/* Branding
+/* Provider
 /* --------------------------------------------------------------------------------- */
 
-.brand {
+.provider {
   margin-top: 30px;
   color: #909090;
   font-size: 12px;
   text-align: center;
 }
-.brand a {
+
+.provider a {
   text-decoration: none;
   color: inherit;
 }
-.brand svg {
+
+.provider svg {
   margin-left: 3px;
   vertical-align: text-bottom;
 }

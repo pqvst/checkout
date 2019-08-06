@@ -14,15 +14,48 @@ import EU_COUNTRY_CODES from '../data/eu_country_codes';
 import { isCardExpired } from '../lib/util';
 
 
+const defaults = {
+  header: null,
+  title: null,
+  action: null,
+  email: true,
+  card: true,
+  name: true,
+  country: false,
+  postcode: false,
+  vat: false,
+  coupon: false,
+  disclaimer: true,
+  provider: true,
+  prefill: null,
+};
+
 function Checkout(opts) {
+  opts = Object.assign({}, defaults, opts);
+  if (opts.prefill == null) {
+    opts.prefill = {};
+  }
+  if (opts.prefill.customer == null) {
+    opts.prefill.customer = {};
+  }
 
   const stripePublicKey = opts.stripePublicKey;
   const clientSecret = opts.clientSecret;
+
 
   function validateVat(vat) {
     return new Promise(function (resolve) {
       const request = new XMLHttpRequest();
       request.open('GET', `${opts.vatValidationUrl}?q=${vat}`, true);
+      request.onload = function () { resolve(this.status === 200); };
+      request.send();
+    });
+  }
+  
+  function validateCoupon(coupon) {
+    return new Promise(function (resolve) {
+      const request = new XMLHttpRequest();
+      request.open('GET', `${opts.couponValidationUrl}?q=${coupon}`, true);
       request.onload = function () { resolve(this.status === 200); };
       request.send();
     });
@@ -74,31 +107,55 @@ function Checkout(opts) {
       header: opts.header,
       title: opts.title,
       action: opts.action,
-      disableEmail: opts.disableEmail,
-      allowVat: opts.allowVat,
-      allowCoupon: opts.allowCoupon,
-      // Fields
-      card: opts.card,
-      email: opts.email,
-      name: opts.name,
-      country: opts.country,
-      postcode: opts.postcode,
-      coupon: opts.coupon,
-      vat: opts.vat,
-      paymentMethod: '',
+
+      // true/false/disable
+      fields: {
+        email: opts.email,
+        card: opts.card,
+        name: opts.name,
+        country: opts.country,
+        postcode: opts.postcode,
+        coupon: opts.coupon,
+        vat: opts.vat,
+        disclaimer: opts.disclaimer,
+        provider: opts.provider,
+      },
+
+      values: {
+        email: opts.prefill.email || opts.prefill.customer.email,
+        card: opts.prefill.card,
+        name: opts.prefill.name || opts.prefill.customer.name,
+        country: opts.prefill.country || opts.prefill.customer.country,
+        postcode: opts.prefill.postcode || opts.prefill.customer.postcode,
+        vat: opts.prefill.vat || opts.prefill.customer.vat,
+        coupon: opts.prefill.coupon,
+        paymentMethod: '',
+      },
+
+      disabled: {
+        email: opts.email == 'disable',
+        card: opts.card == 'disable',
+        name: opts.name == 'disable',
+        country: opts.country == 'disable',
+        postcode: opts.postcode == 'disable',
+        vat: opts.vat == 'disable',
+        coupon: opts.coupon == 'disable',
+      },
+
+      errors: {
+        load: loadError,
+        email: null,
+        card: null,
+        name: null,
+        country: null,
+        vat: null,
+        coupon: null,
+      },
+      
       // State
       editCard: true,
       processing: false,
       countries: COUNTRIES,
-      errors: {
-        load: loadError,
-        email: null,
-        name: null,
-        country: null,
-        vat: null,
-        card: null,
-        postcode: null,
-      }
     },
 
     computed: {
@@ -106,8 +163,18 @@ function Checkout(opts) {
         return this.country != opts.taxOrigin && EU_COUNTRY_CODES.includes(this.country);
       },
       editCardExpired() {
-        return !this.editCard && this.card && isCardExpired(this.card.exp_month, this.card.exp_year);
-      }
+        return !this.editCard && this.values.card && isCardExpired(this.values.card.exp_month, this.values.card.exp_year);
+      },
+      submitText() {
+        return this.processing ? 'Processing...' : (this.action || 'Continue');
+      },
+      disclaimerText() {
+        if (this.fields.disclaimer == true) {
+          return 'Your security is important to us. We do not store or process your credit card information. Online payments are passed via a secure socket layer to a payment processor where your information is tokenized (whereby a random number is generated to represent your payment). The payment processor is PCI compliant which ensures that your information is being handled in accordance with industry security standards.';
+        } else {
+          return this.fields.disclaimer;
+        }
+      },
     },
 
     watch: {
@@ -119,7 +186,7 @@ function Checkout(opts) {
     },
 
     created() {
-      this.editCard = this.card == null;
+      this.editCard = this.values.card == null;
     },
 
     mounted() {
@@ -143,21 +210,27 @@ function Checkout(opts) {
         }
         this.processing = true;
 
-        if (!this.email) {
+        if (this.fields.email && !this.values.email) {
           this.errors.email = 'Required';
           hasError = true;
         }
-        if (!this.name) {
+        if (this.fields.name && !this.values.name) {
           this.errors.name = 'Required';
           hasError = true;
         }
-        if (!this.country) {
+        if (this.fields.country && !this.values.country) {
           this.errors.country = 'Required';
           hasError = true;
         }
-        if (this.vat && opts.vatValidationUrl) {
+        if (this.fields.vat && this.values.vat && opts.vatValidationUrl) {
           if (!await validateVat(this.vat)) {
             this.errors.vat = 'Invalid';
+            hasError = true;
+          }
+        }
+        if (this.fields.coupon && this.values.coupon && opts.couponValidationUrl) {
+          if (!await validateCoupon(this.coupon)) {
+            this.errors.coupon = 'Invalid';
             hasError = true;
           }
         }
@@ -165,32 +238,33 @@ function Checkout(opts) {
           this.processing = false;
           return;
         }
-        if (this.card && !this.editCard) {
+        if (this.values.card && !this.editCard) {
           this.$refs.form.submit();
-        } else {
-          const result = await stripe.handleCardSetup(clientSecret, cardNumber, {
-            payment_method_data: {
-              billing_details: {
-                name: this.name || null,
-                address: {
-                  country: this.country || null,
-                  postal_code: this.postcode || null,
-                }
+          return;
+        }
+
+        const result = await stripe.handleCardSetup(clientSecret, cardNumber, {
+          payment_method_data: {
+            billing_details: {
+              name: this.values.name || null,
+              address: {
+                country: this.values.country || null,
+                postal_code: this.values.postcode || null,
               }
             }
-          });
-          if (result.error) {
-            this.errors.card = result.error.message;
-            hasError = true;
           }
-          if (hasError) {
-            this.processing = false;
-          } else {
-            this.paymentMethod = result.setupIntent.payment_method;
-            this.$nextTick(() => {
-              this.$refs.form.submit();
-            });
-          }
+        });
+
+        if (result.error) {
+          this.errors.card = result.error.message;
+          hasError = true;
+        }
+
+        if (hasError) {
+          this.processing = false;
+        } else {
+          this.paymentMethod = result.setupIntent.payment_method;
+          this.$nextTick(() => this.$refs.form.submit());
         }
       }
     }

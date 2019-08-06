@@ -12,81 +12,139 @@
 
     form(v-on:submit.prevent="submit" ref="form" method="POST")
 
+      //-------------------------------------------------------------------------------------------------------------------------
       //- Email Address
-      label 
-        span Email address
-        span.alert(v-if="errors.email") {{errors.email}}
-      .field
-        input(type="email" name="email" v-model="email" v-bind:class="{ invalid: errors.email }" v-bind:disabled="disableEmail")
+      //-------------------------------------------------------------------------------------------------------------------------
+      template(v-if="fields.email")
+        label 
+          span Email address
+          span.alert(v-if="errors.email") {{errors.email}}
+        .field
+          input(type="email" name="email"
+            v-model="values.email"
+            v-bind:class="{ invalid: errors.email }"
+            v-bind:disabled="disabled.email")
 
+      //-------------------------------------------------------------------------------------------------------------------------
       //- Card Information
-      label 
-        span Card information
-        span.alert(v-if="editCardExpired") Expired
+      //-------------------------------------------------------------------------------------------------------------------------
+      template(v-if="fields.card")
+        label 
+          span Card information
+          span.alert(v-if="editCardExpired") Expired
 
-      div(v-show="editCard")
-        .card(v-bind:class="{ invalid: errors.card }")
-          #card-number.stripe-input
-          .flex
-            #card-expiry.stripe-input
-            #card-cvc.stripe-input
-        .error(v-if="errors.card") {{errors.card}}
-        .toggle(v-if="card" v-on:click="toggleEditCard") Use saved card information
+        div(v-show="!disabled.card && editCard")
+          .card(v-bind:class="{ invalid: errors.card }")
+            #card-number.stripe-input
+            .flex
+              #card-expiry.stripe-input
+              #card-cvc.stripe-input
+          .error(v-if="errors.card") {{errors.card}}
+          .toggle(v-if="values.card && !disabled.card" v-on:click="toggleEditCard") Use saved card information
 
-      div(v-if="!editCard")
-        .card
-          .card-number.stripe-input-prefilled •••• •••• •••• {{card.last4}}
-          .flex
-            .card-expiry.stripe-input-prefilled {{card.exp_month}}/{{card.exp_year}}
-            .card-cvc.stripe-input-prefilled •••
-        .toggle(v-on:click="toggleEditCard") Edit card information
+        div(v-if="disabled.card || !editCard")
+          div(v-if="values.card")
+            .card
+              .card-number.stripe-input-prefilled •••• •••• •••• {{values.card.last4}}
+              .flex
+                .card-expiry.stripe-input-prefilled {{values.card.exp_month}}/{{values.card.exp_year}}
+                .card-cvc.stripe-input-prefilled •••
+          div(v-else)
+            .card
+              .card-number.stripe-input-prefilled
+              .flex
+                .card-expiry.stripe-input-prefilled
+                .card-cvc.stripe-input-prefilled
+          .toggle(v-if="!disabled.card" v-on:click="toggleEditCard") Edit card information
 
+      //-------------------------------------------------------------------------------------------------------------------------
       //- Name
-      label
-        span Name on card
-        span.alert(v-if="errors.name") {{errors.name}}
-      .field
-        input(type="text" name="name" v-model="name" v-bind:class="{ invalid: errors.name }")
+      //-------------------------------------------------------------------------------------------------------------------------
+      template(v-if="fields.name")
+        label
+          span Name on card
+          span.alert(v-if="errors.name") {{errors.name}}
+        .field
+          input(type="text" name="name"
+            v-model="values.name"
+            v-bind:class="{ invalid: errors.name }"
+            v-bind:disabled="disabled.name")
 
+      //-------------------------------------------------------------------------------------------------------------------------
       //- Country
-      label
-        span Country or region
-        span.alert(v-if="errors.country") {{errors.country}}
-      .field(v-bind:class="{ invalid: errors.country }")
-        .select
-          select(name="country" v-model="country")
-            option(value='')
-            option(v-for="e in countries" v-bind:value="e.value") {{e.label}}
-          svg(focusable="false" width="12" height="12").
-            <path d="M10.193 3.97a.75.75 0 0 1 1.062 1.062L6.53 9.756a.75.75 0 0 1-1.06 0L.745 5.032A.75.75 0 0 1 1.807 3.97L6 8.163l4.193-4.193z" fill="#000" fill-rule="evenodd" fill-opacity=".4"></path>
-        input(v-if="country" name="postcode" type="text" v-model="postcode" v-bind:class="{ invalid: errors.postcode }" placeholder="Postal code")
+      //-------------------------------------------------------------------------------------------------------------------------
+      template(v-if="fields.country")
+        label
+          span Country or region
+          span.alert(v-if="errors.country") {{errors.country}}
+        .field(v-bind:class="{ invalid: errors.country }")
+          .select
+            select(name="country" v-model="values.country" v-bind:disabled="disabled.country")
+              option(value='')
+              option(v-for="e in countries" v-bind:value="e.value") {{e.label}}
+            svg(focusable="false" width="12" height="12").
+              <path d="M10.193 3.97a.75.75 0 0 1 1.062 1.062L6.53 9.756a.75.75 0 0 1-1.06 0L.745 5.032A.75.75 0 0 1 1.807 3.97L6 8.163l4.193-4.193z" fill="#000" fill-rule="evenodd" fill-opacity=".4"></path>
+          
+          //- Only show postcode field if the field is enabled AND a country is selected!
+          template(v-if="fields.postcode && values.country")
+            input(name="postcode" type="text"
+              placeholder="Postal code"
+              v-model="values.postcode"
+              v-bind:class="{ invalid: errors.postcode }"
+              v-bind:disabled="disabled.postcode")
 
+      //-------------------------------------------------------------------------------------------------------------------------
       //- VAT number
-      template(v-if="allowVat")
+      //-------------------------------------------------------------------------------------------------------------------------
+      template(v-if="fields.vat")
         template(v-if="showVat")
           label
             span VAT number (optional)
             span.alert(v-if="errors.vat") {{errors.vat}}
           .field
-            input(name="vat" type="text" v-model="vat" v-bind:class="{ invalid: errors.vat }")
+            input(name="vat" type="text"
+              v-model="values.vat"
+              v-bind:class="{ invalid: errors.vat }"
+              v-bind:disabled="disabled.vat")
 
+      //-------------------------------------------------------------------------------------------------------------------------
       //- Coupon
-      template(v-if="allowCoupon")
-        label Coupon (optional)
+      //-------------------------------------------------------------------------------------------------------------------------
+      template(v-if="fields.coupon")
+        label 
+          span Coupon (optional)
+          span.alert(v-if="errors.coupon") {{errors.coupon}}
         .field
-          input(type="text" name="coupon" v-model="coupon")
+          input(type="text" name="coupon"
+            v-model="values.coupon"
+            v-bind:disabled="disabled.coupon"
+            autocomplete='off'
+            autocorrect='off'
+            autocapitalize='off'
+            spellcheck='false')
 
+      //-------------------------------------------------------------------------------------------------------------------------
       //- Payment Method
-      input(type="hidden" name="paymentMethod" v-model="paymentMethod")
+      //-------------------------------------------------------------------------------------------------------------------------
+      input(type="hidden" name="paymentMethod" v-model="values.paymentMethod")
 
+      //-------------------------------------------------------------------------------------------------------------------------
       //- Submit
-      button(type="submit" v-bind:disabled="processing") {{processing ? 'Processing...' : (action || 'Continue')}}
+      //-------------------------------------------------------------------------------------------------------------------------
+      button(type="submit" v-bind:disabled="processing") {{submitText}}
 
-    .disclaimer.
-      Your security is important to us. We do not store or process your credit card information. Online payments are passed via a secure socket layer to a payment processor where your information is tokenized (whereby a random number is generated to represent your payment). The payment processor is PCI compliant which ensures that your information is being handled in accordance with industry security standards.
+    //-------------------------------------------------------------------------------------------------------------------------
+    //- Disclaimer
+    //-------------------------------------------------------------------------------------------------------------------------
+    template(v-if="fields.disclaimer")
+      .disclaimer {{disclaimerText}}
 
-    .brand 
-      a(href="https://stripe.com" target="_blank")
-        span Powered by
-        svg(class="" focusable="false" width="33" height="15").
-          <g fill="#909090" fill-rule="evenodd"><path d="M32.956 7.925c0-2.313-1.12-4.138-3.261-4.138-2.15 0-3.451 1.825-3.451 4.12 0 2.719 1.535 4.092 3.74 4.092 1.075 0 1.888-.244 2.502-.587V9.605c-.614.307-1.319.497-2.213.497-.876 0-1.653-.307-1.753-1.373h4.418c0-.118.018-.588.018-.804zm-4.463-.859c0-1.02.624-1.445 1.193-1.445.55 0 1.138.424 1.138 1.445h-2.33zM22.756 3.787c-.885 0-1.454.415-1.77.704l-.118-.56H18.88v10.535l2.259-.48.009-2.556c.325.235.804.57 1.6.57 1.616 0 3.089-1.302 3.089-4.166-.01-2.62-1.5-4.047-3.08-4.047zm-.542 6.225c-.533 0-.85-.19-1.066-.425l-.009-3.352c.235-.262.56-.443 1.075-.443.822 0 1.391.922 1.391 2.105 0 1.211-.56 2.115-1.39 2.115zM18.04 2.766V.932l-2.268.479v1.843zM15.772 3.94h2.268v7.905h-2.268zM13.342 4.609l-.144-.669h-1.952v7.906h2.259V6.488c.533-.696 1.436-.57 1.716-.47V3.94c-.289-.108-1.346-.307-1.879.669zM8.825 1.98l-2.205.47-.009 7.236c0 1.337 1.003 2.322 2.34 2.322.741 0 1.283-.135 1.581-.298V9.876c-.289.117-1.716.533-1.716-.804V5.865h1.716V3.94H8.816l.009-1.96zM2.718 6.235c0-.352.289-.488.767-.488.687 0 1.554.208 2.241.578V4.202a5.958 5.958 0 0 0-2.24-.415c-1.835 0-3.054.957-3.054 2.557 0 2.493 3.433 2.096 3.433 3.17 0 .416-.361.552-.867.552-.75 0-1.708-.307-2.467-.723v2.15c.84.362 1.69.515 2.467.515 1.879 0 3.17-.93 3.17-2.548-.008-2.692-3.45-2.213-3.45-3.225z"></path></g>
+    //-------------------------------------------------------------------------------------------------------------------------
+    //- Provider
+    //-------------------------------------------------------------------------------------------------------------------------
+    template(v-if="fields.provider")
+      .provider
+        a(href="https://stripe.com" target="_blank")
+          span Powered by
+          svg(class="" focusable="false" width="33" height="15").
+            <g fill="#909090" fill-rule="evenodd"><path d="M32.956 7.925c0-2.313-1.12-4.138-3.261-4.138-2.15 0-3.451 1.825-3.451 4.12 0 2.719 1.535 4.092 3.74 4.092 1.075 0 1.888-.244 2.502-.587V9.605c-.614.307-1.319.497-2.213.497-.876 0-1.653-.307-1.753-1.373h4.418c0-.118.018-.588.018-.804zm-4.463-.859c0-1.02.624-1.445 1.193-1.445.55 0 1.138.424 1.138 1.445h-2.33zM22.756 3.787c-.885 0-1.454.415-1.77.704l-.118-.56H18.88v10.535l2.259-.48.009-2.556c.325.235.804.57 1.6.57 1.616 0 3.089-1.302 3.089-4.166-.01-2.62-1.5-4.047-3.08-4.047zm-.542 6.225c-.533 0-.85-.19-1.066-.425l-.009-3.352c.235-.262.56-.443 1.075-.443.822 0 1.391.922 1.391 2.105 0 1.211-.56 2.115-1.39 2.115zM18.04 2.766V.932l-2.268.479v1.843zM15.772 3.94h2.268v7.905h-2.268zM13.342 4.609l-.144-.669h-1.952v7.906h2.259V6.488c.533-.696 1.436-.57 1.716-.47V3.94c-.289-.108-1.346-.307-1.879.669zM8.825 1.98l-2.205.47-.009 7.236c0 1.337 1.003 2.322 2.34 2.322.741 0 1.283-.135 1.581-.298V9.876c-.289.117-1.716.533-1.716-.804V5.865h1.716V3.94H8.816l.009-1.96zM2.718 6.235c0-.352.289-.488.767-.488.687 0 1.554.208 2.241.578V4.202a5.958 5.958 0 0 0-2.24-.415c-1.835 0-3.054.957-3.054 2.557 0 2.493 3.433 2.096 3.433 3.17 0 .416-.361.552-.867.552-.75 0-1.708-.307-2.467-.723v2.15c.84.362 1.69.515 2.467.515 1.879 0 3.17-.93 3.17-2.548-.008-2.692-3.45-2.213-3.45-3.225z"></path></g>
