@@ -28,6 +28,14 @@ app.get('/validateVatNumber', (req, res) => {
 });
 
 
+// Implement endpoint for coupon validation
+app.get('/validateCoupon', (req, res) => {
+  checkout.validateCoupon(req.query.q).then(valid => {
+    res.status(valid ? 200 : 400).json({ valid });
+  });
+});
+
+
 // Landing page showing current subscription status and receipts.
 app.get('/', async (req, res) => {
   res.render('index', {
@@ -45,18 +53,10 @@ app.get('/card', async (req, res) => {
     checkout: {
       stripePublicKey: STRIPE_PUBLIC_KEY,
       clientSecret: await checkout.getClientSecret(),
-      // Customization
       header: '',
       title: 'Update card details',
       action: 'Save',
-      // Don't show coupon when updating card
-      showCoupon: false,
-      // Pre-fill values from existing subscription
-      email: sub ? sub.customer.email : null,
-      name: sub ? sub.customer.name : null,
-      country: sub ? sub.customer.country : null,
-      postcode: sub ? sub.customer.postcode : null,
-      vat: sub ? sub.customer.vat : null,
+      prefill: sub,
     }
   });
 });
@@ -81,17 +81,12 @@ app.get('/upgrade', async (req, res) => {
     checkout: {
       stripePublicKey: STRIPE_PUBLIC_KEY,
       clientSecret: await checkout.getClientSecret(),
-      // Customization
       header: 'Upgrade to Gold',
       title: '$10.00 per month',
       action: 'Upgrade',
-      // Pre-fill values from existing subscription
-      email: sub ? sub.customer.email : null,
-      name: sub ? sub.customer.name : null,
-      country: sub ? sub.customer.country : null,
-      postcode: sub ? sub.customer.postcode : null,
-      vat: sub ? sub.customer.vat : null,
-      card: sub ? sub.card : null,
+      prefill: sub,
+      coupon: true,
+      couponValidationUrl: '/validateCoupon',
     }
   });
 });
