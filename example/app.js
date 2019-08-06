@@ -1,14 +1,25 @@
-const STRIPE_SECRET_KEY = '...';
-const STRIPE_PUBLIC_KEY = '...';
-const PREMIUM_PLAN_ID = '...';
-const PORT = 3000;
-
-
-const checkout = require('../lib')(STRIPE_SECRET_KEY);
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+
+const STRIPE_PUBLIC_KEY = process.env.STRIPE_PUBLIC_KEY;
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+const PREMIUM_PLAN_ID = process.env.PREMIUM_PLAN_ID;
+const PORT = process.env.PORT || 3000;
+
+
+if (!STRIPE_PUBLIC_KEY || !STRIPE_SECRET_KEY) {
+  throw new Error('You must add your stripe public and secret key.');
+}
+if (!PREMIUM_PLAN_ID) {
+  throw new Error('You must define a premium plan id to be able to test upgrades.');
+}
+
+
+const checkout = require('../lib')(STRIPE_SECRET_KEY);
 
 
 // Setup express
