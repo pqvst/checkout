@@ -1,7 +1,7 @@
 import Vue from 'vue';
 
 // Inject style into DOM
-import style from './style.css';
+import './style.css';
 
 // Load pug template as HTML string
 import template from './template.pug';
