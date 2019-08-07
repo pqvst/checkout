@@ -271,7 +271,7 @@ function Checkout(opts) {
         if (hasError) {
           this.processing = false;
         } else {
-          this.paymentMethod = result.setupIntent.payment_method;
+          this.values.paymentMethod = result.setupIntent.payment_method;
           this.$nextTick(() => this.$refs.form.submit());
         }
       }
