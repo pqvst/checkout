@@ -167,7 +167,7 @@ The server-side helper library provides several easy-to-use helpers to manage St
 Generates a client secret required to render the client-side checkout page.
 
 ### `checkout.getSubscription( stripeCustomerId )`
-Retrieve the current subscription status. Returns `null` if there is no active subscription.
+Retrieve the current subscription status. Returns `valid: false` if there is no active subscription. `card` and `customer` will always be returned if available (e.g. from a previous cancelled subscription).
 
 ```js
 { id: 'sub_xxx',
