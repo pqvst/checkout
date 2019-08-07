@@ -56,14 +56,13 @@ body {
   top: 40%;
   margin-left: -50px;
   margin-top: -50px;
-  opacity: 0.4;
 
   display: inline-block;
   width: 100px;
   height: 100px;
-  border: 3px solid rgba(0,0,0,.3);
+  border: 3px solid rgba(0,0,0,0.1);
   border-radius: 50%;
-  border-top-color: #000;
+  border-top-color: rgba(0,0,0,0.4);
   animation: spin 1s linear infinite;
   -webkit-animation: spin 1s linear infinite;
 }
