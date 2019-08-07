@@ -73,15 +73,19 @@ app.get('/card', async (req, res) => {
 });
 
 app.post('/card', async (req, res) => {
-  await checkout.manageSubscription(req.query.customer, {
-    email: req.body.email,
-    name: req.body.name,
-    country: req.body.country,
-    postcode: req.body.postcode,
-    vat: req.body.vat,
-    paymentMethod: req.body.paymentMethod,
-  });
-  res.redirect('/?customer=' + req.query.customer);
+  try {
+    await checkout.manageSubscription(req.query.customer, {
+      email: req.body.email,
+      name: req.body.name,
+      country: req.body.country,
+      postcode: req.body.postcode,
+      vat: req.body.vat,
+      paymentMethod: req.body.paymentMethod,
+    });
+    res.redirect('/?customer=' + req.query.customer);
+  } catch (err) {
+    res.json({ error: err.message });
+  }
 });
 
 
@@ -103,17 +107,21 @@ app.get('/upgrade', async (req, res) => {
 });
 
 app.post('/upgrade', async (req, res) => {
-  const stripeCustomerId = await checkout.manageSubscription(req.query.customer, {
-    plan: PREMIUM_PLAN_ID,
-    email: req.body.email,
-    name: req.body.name,
-    country: req.body.country,
-    postcode: req.body.postcode,
-    vat: req.body.vat,
-    coupon: req.body.coupon,
-    paymentMethod: req.body.paymentMethod,
-  });
-  res.redirect('/?customer=' + stripeCustomerId);
+  try {
+    const stripeCustomerId = await checkout.manageSubscription(req.query.customer, {
+      plan: PREMIUM_PLAN_ID,
+      email: req.body.email,
+      name: req.body.name,
+      country: req.body.country,
+      postcode: req.body.postcode,
+      vat: req.body.vat,
+      coupon: req.body.coupon,
+      paymentMethod: req.body.paymentMethod,
+    });
+    res.redirect('/?customer=' + stripeCustomerId);
+  } catch (err) {
+    res.json({ error: err.message });
+  }
 });
 
 
