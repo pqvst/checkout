@@ -198,6 +198,14 @@ function Checkout(opts) {
     },
 
     methods: {
+      formatMonth(exp_month) {
+        return String(exp_month).padStart(2, '0');
+      },
+
+      formatYear(exp_year) {
+        return String(exp_year).slice(2);
+      },
+
       toggleEditCard() {
         this.editCard = !this.editCard;
       },
