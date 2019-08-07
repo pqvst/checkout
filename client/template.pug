@@ -48,7 +48,7 @@
             .card
               .card-number.stripe-input-prefilled •••• •••• •••• {{values.card.last4}}
               .flex
-                .card-expiry.stripe-input-prefilled {{formatMonth(values.card.exp_month)}} / {{formatYear(values.card.exp_year)}}
+                .card-expiry.stripe-input-prefilled {{formatMonth(values.card.month)}} / {{formatYear(values.card.year)}}
                 .card-cvc.stripe-input-prefilled •••
           div(v-else)
             .card
