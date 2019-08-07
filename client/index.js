@@ -122,12 +122,12 @@ function Checkout(opts) {
       },
 
       values: {
-        email: opts.prefill.email || opts.prefill.customer.email,
+        email: opts.prefill.customer.email,
         card: opts.prefill.card,
-        name: opts.prefill.name || opts.prefill.customer.name,
-        country: opts.prefill.country || opts.prefill.customer.country,
-        postcode: opts.prefill.postcode || opts.prefill.customer.postcode,
-        vat: opts.prefill.vat || opts.prefill.customer.vat,
+        name: opts.prefill.customer.name,
+        country: opts.prefill.customer.country,
+        postcode: opts.prefill.customer.postcode,
+        vat: opts.prefill.customer.vat,
         coupon: opts.prefill.coupon,
         paymentMethod: '',
       },
