@@ -1,8 +1,5 @@
 #app(v-cloak)
 
-  .overlay(v-if="errors.load")
-    .error {{errors.load}}
-
   transition(name="fade")
     .overlay(v-show="processing")
       .spinner
@@ -12,6 +9,7 @@
     .title {{title || 'Payment information'}}
 
     form(v-on:submit.prevent="submit" ref="form" method="POST")
+      .error {{errors.load}}
 
       //-------------------------------------------------------------------------------------------------------------------------
       //- Email Address

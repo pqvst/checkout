@@ -145,6 +145,7 @@ Checkout({
 - `couponValidationUrl` - Endpoint to validate coupons (see below)
 - `taxOrigin` - Country where you pay tax (used to determine toggle the VAT field)
 - `prefill` - Prefill customer and card details
+- `error` - Generic error message
 
 #### Prefill Customer
 - `email` - Pre-fill customer email address

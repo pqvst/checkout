@@ -76,7 +76,7 @@ function Checkout(opts) {
     }
   };
 
-  let loadError;
+  let loadError = opts.error;
   let stripe, cardNumber, cardExpiry, cardCvc;
 
   if (!stripePublicKey) {

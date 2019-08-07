@@ -48,11 +48,6 @@ body {
   z-index: 9999;
 }
 
-.overlay .error {
-  padding: 30px;
-  text-align: center;
-}
-
 .spinner {
   position: absolute;
   width: 100px;
