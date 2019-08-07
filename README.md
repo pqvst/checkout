@@ -8,6 +8,7 @@ A simple, lightweight, checkout page for Stripe SaaS subscriptions featuring:
 - SCA compliant with 3D Secure 2 authentication
 - Single subscriptions per customer
 - Single payment methods per customer
+- Re-use existing saved card details
 
 ## Getting Started
 
@@ -26,6 +27,7 @@ app.use('/js/checkout.js', express.static('./node_modules/checkout/dist/checkout
 
 // Render the checkout page
 app.get('/upgrade', async (req, res) => {
+  // Render the payment form and pass the required client-side config values
   res.render('checkout', {
     checkout: {
       stripePublicKey: STRIPE_PUBLIC_KEY,
@@ -36,6 +38,7 @@ app.get('/upgrade', async (req, res) => {
 
 // Update the subscription
 app.post('/upgrade', async (req, res) => {
+  // Create a stripe customer and upgrade the subscription
   const stripeCustomerId = await checkout.manageSubscription(null, {
     plan: '<plan_id>',
     email: req.body.email,
@@ -45,6 +48,8 @@ app.post('/upgrade', async (req, res) => {
     coupon: req.body.coupon,
     paymentMethod: req.body.paymentMethod,
   });
+  // Save the stripeCustomerId...
+  // req.user.stripeCustomerId = stripeCustomerId;
   res.redirect('/');
 });
 ```
@@ -66,7 +71,10 @@ html
 
     //- Initialize the client-side library
     script.
-      Checkout(!{JSON.stringify(checkout)});
+      Checkout({
+        stripePublicKey: checkout.stripePublicKey,
+        clientSecret: checkout.clientSecret,
+      });
 ```
 
 #### Screenshot
@@ -76,32 +84,79 @@ html
 
 
 ## Client-Side Configuration
-The client-side library supports several configuration options and customization points.
+Initialize the client-side with one line of code to automatically create a complete payment form. Several configuration options and customization points are available.
 
 ```js
-Checkout({ ... })
+Checkout({
+  stripePublicKey: '...',
+  clientSecret: '...',
+  header: 'Upgrade your plan!',
+  title: '$10.00 per month',
+  action: 'Upgrade',
+  email: true,
+  card: true,
+  name: true,
+  country: true,
+  postcode: true,
+  vat: false,
+  coupon: true,
+  disclaimer: false,
+  provider: false,
+  vatValidationUrl: '/validateVat',
+  couponValidationUrl: '/validateCoupon',
+  taxOrigin: 'SE',
+  prefill: {
+    customer: {
+      email: 'customer@example.com',
+      name: 'Bob',
+      country: 'GB',
+      postcode: 'ABC 123',
+      vat: 'GB123123123'
+    },
+    card: {
+      month: 4,
+      year: 2024,
+      last4: '1234'
+    }
+  }
+});
 ```
+
+
 
 #### Required
 - `stripePublicKey` - Your Stripe account public key
-- `clientSecret` - Client secret generated using `checkout.getClientSecret()`
+- `clientSecret` - Client secret generated using the server-side library helper `checkout.getClientSecret()`
 
 #### Customization
 - `header` - Header text shown above the title
 - `title` - Title text shown above the payment form
 - `action` - Text shown on the submit button
-- `disableEmail` - Don't allow the user to change their email (e.g. if pre-filled)
-- `allowVat` - Allow customer to enter a VAT number for EU countries
-- `allowCoupon` - Allow customer to enter a coupon code
-- `vatValidationUrl` - An endpoint used to validate the VAT number (see below)
-- `taxOrigin` - The country where you pay tax (used to determine when to show the VAT field)
+- `disclaimer` Disclaimer text (`true`/`false`/`'Custom disclaimer text...'`)
+- `provider` Provider information (`true`/`false`)
+- `email` - Email field (`true`/`false`/`'disable'`) 
+- `card` - Card input (`true`/`false`/`'disable'`) 
+- `name` - Name field (`true`/`false`/`'disable'`) 
+- `country` - Country field (`true`/`false`/`'disable'`) 
+- `postcode` - Postal code field (`true`/`false`/`'disable'`) 
+- `vat` - VAT field (`true`/`false`/`'disable'`) 
+- `coupon` - Coupon field (`true`/`false`/`'disable'`) 
+- `vatValidationUrl` - Endpoint to validate VAT numbers (see below)
+- `couponValidationUrl` - Endpoint to validate coupons (see below)
+- `taxOrigin` - Country where you pay tax (used to determine toggle the VAT field)
+- `prefill` - Prefill customer and card details
 
-#### Pre-filling
+#### Prefill Customer
 - `email` - Pre-fill customer email address
 - `name` - Pre-fill customer name
 - `country` - Pre-fill customer country (ISO 3166 alpha-2 country code)
 - `vat` - Pre-fill customer vat number
 - `coupon` - Pre-fill coupon code
+
+#### Prefill Card
+- `month` - Expiry month (e.g. `6`)
+- `year` - Expiry year (e.g. `2024`)
+- `last4` - Last 4 digits (e.g. `'1234'`)
 
 
 ## Server-Side API
@@ -119,8 +174,8 @@ Retrieve the current subscription status. Returns `null` if there is no active s
   cancelled: false,
   card:
    { brand: 'visa',
-     exp_month: 4,
-     exp_year: 2024,
+     month: 4,
+     year: 2024,
      last4: '4242',
      summary: 'Visa ending in 4242 (04/24)' },
   plan:
@@ -223,6 +278,9 @@ List all recent receipts. Returns an empty array `[]` if an invalid customer ID 
 ### `checkout.validateVatNumber`
 Helper to validate VAT numbers. See [VAT number validation]()
 
+### `checkout.validateCoupon`
+Helper to validate coupon codes. See [Coupon validation]()
+
 
 ## VAT number validation
 If a `vatValidationUrl` is passed to the client-side library initialization, then the VAT number will be validated using a `GET` request to the specified URL, with a query string parameter `q` containing the VAT number. If the response status code is `200` then validation succeeds. Any other status code will fail.
@@ -248,6 +306,28 @@ Checkout({
   vatValidationUrl: '/validateVatNumber',
   ...
 })
+```
+
+
+## Coupon validation
+
+```js
+Checkout({
+  couponValidationUrl: '/validateCoupon',
+  ...
+})
+```
+
+```
+GET /validateCoupon?q=HELLO123
+```
+
+```js
+app.get('/validateCoupon', (req, res) => {
+  checkout.validateCoupon(req.query.q).then(valid => {
+    res.status(valid ? 200 : 400).json({ valid });
+  });
+});
 ```
 
 
