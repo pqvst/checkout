@@ -103,7 +103,12 @@ app.get('/upgrade', async (req, res) => {
       prefill: sub,
       coupon: true,
       couponValidationUrl: '/validateCoupon',
-      pay: true,
+      pay: {
+        amount: 1000,
+        country: 'SE',
+        currency: 'usd',
+        label: 'Upgrade to Gold',
+      },
     }
   });
 });

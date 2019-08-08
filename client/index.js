@@ -86,22 +86,25 @@ function Checkout(opts) {
     try {
       stripe = Stripe(stripePublicKey);
 
-      paymentRequest = stripe.paymentRequest({
-        country: 'US',
-        currency: 'usd',
-        total: {
-          label: 'Test',
-          amount: 0,
-        },
-        requestPayerName: true,
-        requestPayerEmail: true,
-      });
-
       const elements = stripe.elements();
       cardNumber = elements.create('cardNumber', { style: style });
       cardExpiry = elements.create('cardExpiry', { style: style });
       cardCvc = elements.create('cardCvc', { style: style });
-      paymentRequestButton = elements.create('paymentRequestButton', { paymentRequest });
+
+      if (opts.pay) {
+        paymentRequest = stripe.paymentRequest({
+          country: opts.pay.country,
+          currency: opts.pay.currency,
+          total: {
+            label: opts.pay.label,
+            amount: opts.pay.amount,
+          },
+          requestPayerName: true,
+          requestPayerEmail: true,
+        });
+        paymentRequestButton = elements.create('paymentRequestButton', { paymentRequest });
+      }
+      
     } catch (err) {
       loadError = err.message;
     }
@@ -210,7 +213,7 @@ function Checkout(opts) {
         cardExpiry.mount('#card-expiry');
         cardCvc.mount('#card-cvc');
 
-        if (this.fields.pay) {
+        if (paymentRequest) {
           paymentRequest.canMakePayment().then(function (result) {
             if (result) {
               paymentRequestButton.mount('#payment-request-button');
