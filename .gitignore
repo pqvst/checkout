@@ -1,5 +1,4 @@
 node_modules
 coverage
-dist
-.env
 apple-developer-merchantid-domain-association
+.env
