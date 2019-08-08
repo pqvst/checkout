@@ -146,6 +146,13 @@ Checkout({
 - `taxOrigin` - Country where you pay tax (used to determine toggle the VAT field)
 - `prefill` - Prefill customer and card details
 - `error` - Generic error message
+- `pay` - Payment request button (Apple Pay, Google Pay, Microsoft Pay)
+
+#### Pay
+- `country` - Your country code (uppercase). E.g. 'US'
+- `currency` - Currency code (lowercase). E.g. 'usd'
+- `label` - Label shown in the payment request
+- `amount` - Amount shown in the payment request
 
 #### Prefill Customer
 - `email` - Pre-fill customer email address
