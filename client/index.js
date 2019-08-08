@@ -124,6 +124,7 @@ function Checkout(opts) {
 
       // true/false/disable
       fields: {
+        pay: opts.pay,
         email: opts.email,
         card: opts.card,
         name: opts.name,
@@ -209,28 +210,30 @@ function Checkout(opts) {
         cardExpiry.mount('#card-expiry');
         cardCvc.mount('#card-cvc');
 
-        paymentRequest.canMakePayment().then(function (result) {
-          if (result) {
-            paymentRequestButton.mount('#payment-request-button');
-          } else {
-            document.getElementById('payment-request-button').style.display = 'none';
-          }
-        });
-
-        paymentRequest.on('paymentmethod', (ev) => {
-          this.processing = true;
-          ev.complete('success');
-          stripe.handleCardSetup(clientSecret, { payment_method: ev.paymentMethod.id }).then((result) => {
-            if (result.error) {
-              this.errors.card = result.error.message;
-              this.processing = false;
+        if (this.fields.pay) {
+          paymentRequest.canMakePayment().then(function (result) {
+            if (result) {
+              paymentRequestButton.mount('#payment-request-button');
             } else {
-              console.log('submit', result.setupIntent.payment_method);
-              this.paymentMethod = result.setupIntent.payment_method;
-              this.$nextTick(() => this.$refs.form.submit());
+              document.getElementById('payment-request-button').style.display = 'none';
             }
           });
-        });
+          paymentRequest.on('paymentmethod', (ev) => {
+            this.processing = true;
+            ev.complete('success');
+            stripe.handleCardSetup(clientSecret, { payment_method: ev.paymentMethod.id }).then((result) => {
+              if (result.error) {
+                this.errors.card = result.error.message;
+                this.processing = false;
+              } else {
+                this.values.email = ev.payerEmail;
+                this.values.name = ev.payerName;
+                this.values.paymentMethod = result.setupIntent.payment_method;
+                this.$nextTick(() => this.$refs.form.submit());
+              }
+            });
+          });
+        }
       }
     },
 

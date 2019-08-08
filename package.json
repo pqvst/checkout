@@ -8,7 +8,8 @@
     "build": "webpack",
     "watch": "webpack --watch",
     "lint": "eslint . --fix",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "lt": "lt --port 3000"
   },
   "author": "",
   "license": "ISC",

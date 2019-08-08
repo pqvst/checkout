@@ -29,7 +29,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.set('views', __dirname);
 app.set('view engine', 'pug');
 app.use('/js/checkout.js', express.static(path.join(__dirname, '../dist/checkout.js')));
-app.use('/.well-known/apple-developer-merchantid-domain-association', express.static('./apple-developer-merchantid-domain-association'));
+app.use('/.well-known/apple-developer-merchantid-domain-association', express.static(path.join(__dirname, './apple-developer-merchantid-domain-association')));
 
 
 // Implement endpoint for VAT number validation
@@ -103,6 +103,7 @@ app.get('/upgrade', async (req, res) => {
       prefill: sub,
       coupon: true,
       couponValidationUrl: '/validateCoupon',
+      pay: true,
     }
   });
 });
