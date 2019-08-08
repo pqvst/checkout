@@ -11,6 +11,21 @@ body {
 
 
 /* --------------------------------------------------------------------------------- */
+/* Fade Transition */
+/* --------------------------------------------------------------------------------- */
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0
+}
+
+
+/* --------------------------------------------------------------------------------- */
 /* Vue Cloak */
 /* --------------------------------------------------------------------------------- */
 
@@ -33,11 +48,6 @@ body {
   z-index: 9999;
 }
 
-.overlay .error {
-  padding: 30px;
-  text-align: center;
-}
-
 .spinner {
   position: absolute;
   width: 100px;
@@ -46,14 +56,13 @@ body {
   top: 40%;
   margin-left: -50px;
   margin-top: -50px;
-  opacity: 0.4;
 
   display: inline-block;
   width: 100px;
   height: 100px;
-  border: 3px solid rgba(0,0,0,.3);
+  border: 3px solid rgba(0,0,0,0.1);
   border-radius: 50%;
-  border-top-color: #000;
+  border-top-color: rgba(0,0,0,0.4);
   animation: spin 1s linear infinite;
   -webkit-animation: spin 1s linear infinite;
 }
@@ -69,12 +78,6 @@ body {
 /* --------------------------------------------------------------------------------- */
 /* Header */
 /* --------------------------------------------------------------------------------- */
-
-.logo img {
-  max-height: 40px;
-  margin-bottom: 10px;
-  border-radius: 50%;
-}
 
 .header {
   color: #727272;
@@ -141,6 +144,12 @@ button {
   border: none;
   cursor: pointer;
   outline: none;
+  transition: all 0.3s ease 0s;
+}
+
+button[disabled] {
+  background-color: #2e5c8a;
+  opacity: 0.8;
 }
 
 .field {
@@ -189,10 +198,7 @@ select:focus, input:focus {
 }
 
 [disabled] {
-  border: 1px solid #e7e7e7;
-  border-radius: 6px;
   background-color: #f9f9f9;
-  box-shadow: none;
   color: #727272;
 }
 
@@ -242,20 +248,22 @@ select:focus, input:focus {
 
 
 /* --------------------------------------------------------------------------------- */
-/* Branding
+/* Provider
 /* --------------------------------------------------------------------------------- */
 
-.brand {
+.provider {
   margin-top: 30px;
   color: #909090;
   font-size: 12px;
   text-align: center;
 }
-.brand a {
+
+.provider a {
   text-decoration: none;
   color: inherit;
 }
-.brand svg {
+
+.provider svg {
   margin-left: 3px;
   vertical-align: text-bottom;
 }
