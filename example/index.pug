@@ -19,7 +19,7 @@ html
         tbody
           tr
             td Plan
-            td= sub.plan.name
+            td #{sub.plan.name} (#{sub.valid ? 'Valid' : 'Invalid'})
           tr
             td Status
             td= sub.status
