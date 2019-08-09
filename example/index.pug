@@ -14,7 +14,7 @@ html
   body
     
     h1 Subscription
-    if sub.valid
+    if sub.plan
       table
         tbody
           tr
@@ -36,7 +36,7 @@ html
         else
           a(href="/cancel?customer="+customer) Cancel Subscription
     else
-      p No active subscription.
+      p No active plan.
       .buttons
         a(href="/upgrade?customer="+customer) Upgrade
 
