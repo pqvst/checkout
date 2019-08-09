@@ -26,9 +26,10 @@ html
           tr
             td Card
             td= sub.card.summary
-          tr
-            td VAT
-            td= sub.customer.vat
+          if sub.customer.vat
+            tr
+              td VAT
+              td= sub.customer.vat
       .buttons
         a(href="/card?customer="+customer) Change Card
         if sub.cancelled
