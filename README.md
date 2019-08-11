@@ -1,5 +1,5 @@
 # Checkout
-A simple, lightweight, checkout page for Stripe SaaS subscriptions featuring:
+A simple, open-source, lightweight, checkout page for [Stripe](https://stripe.com) SaaS subscriptions featuring:
 - Client-side payment form
 - Server-side subscription management
 - EU VAT validation
@@ -9,6 +9,7 @@ A simple, lightweight, checkout page for Stripe SaaS subscriptions featuring:
 - Single subscriptions per customer
 - Single payment methods per customer
 - Re-use existing saved card details
+- Payment Request Button / Apple Pay
 
 ## Getting Started
 
@@ -54,27 +55,29 @@ app.post('/upgrade', async (req, res) => {
 });
 ```
 
-#### checkout.pug
+#### checkout.html
 
-```pug
-html
-  head
-    title Payment Details
-    meta(name="viewport" content="width=device-width, initial-scale=1")
+```html
+<html>
 
-    script(src="https://js.stripe.com/v3/")
-    script(src="/js/checkout.js")
+<head>
+  <title>Payment Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="/js/checkout.js"></script>
+</head>
 
-  body
-    //- Mounting point for the payment form
-    #checkout
+<body>
+  <div id="checkout"></div>
+  <script>
+    Checkout({
+      stripePublicKey: checkout.stripePublicKey,
+      clientSecret: checkout.clientSecret,
+    });
+  </script>
+</body>
 
-    //- Initialize the client-side library
-    script.
-      Checkout({
-        stripePublicKey: checkout.stripePublicKey,
-        clientSecret: checkout.clientSecret,
-      });
+</html>
 ```
 
 #### Screenshot
@@ -283,7 +286,16 @@ Helper to validate VAT numbers. See [VAT number validation]()
 Helper to validate coupon codes. See [Coupon validation]()
 
 
-## VAT number validation
+## VAT Collection
+
+```js
+Checkout({
+  vat: true,
+  vatValidationUrl: '/validateVat',
+  taxOrigin: 'GB',
+});
+```
+
 If a `vatValidationUrl` is passed to the client-side library initialization, then the VAT number will be validated using a `GET` request to the specified URL, with a query string parameter `q` containing the VAT number. If the response status code is `200` then validation succeeds. Any other status code will fail.
 
 ```
@@ -310,18 +322,24 @@ Checkout({
 ```
 
 
-## Coupon validation
+## Coupons
+Checkout supports showing a coupon code field with optional validation. To show the coupon field simply pass `coupon: true` to the client-side configuration. You can also specify a validation endpoint.
 
 ```js
 Checkout({
+  coupon: true,
   couponValidationUrl: '/validateCoupon',
   ...
 })
 ```
 
+Coupon validation is performed using a `GET` request to the specified validation URL. The coupon code will be passed as a query string parameter named `q`.
+
 ```
-GET /validateCoupon?q=HELLO123
+GET /validateCoupon?q=Hello123
 ```
+
+You can implement your validation however you like (e.g. database lookup, hardcoded, etc.). The server-side checkout library provides a helper function to validate coupon codes directly against stripe. Valid coupon codes must return status code `200`. Any other response is treated as invalid.
 
 ```js
 app.get('/validateCoupon', (req, res) => {
@@ -331,8 +349,28 @@ app.get('/validateCoupon', (req, res) => {
 });
 ```
 
+To apply a coupon code to a subscription, simply pass the coupon code to `manageSubscription()`.
+
+```js
+app.post('/upgrade', (req, res) => {
+  checkout.manageSubscription(stripeCustomerId, {
+    coupon: req.body.coupon
+  }).then(...);
+});
+```
+
 
 ## Example Implementation
 The example projects includes a simple web app that allows a user to view their subscription, upgrade, change card, cancel and reactivate their subscription.
 
 [Example](example/)
+
+
+
+## Subscription States / Incomplete / Past Due etc...
+- Customer without subscription
+- Customer with card
+- etc...
+
+
+## Payment Request Button (Apple Pay / Google Pay / Microsoft Pay)
