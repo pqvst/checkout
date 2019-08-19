@@ -71,8 +71,8 @@ app.post('/upgrade', async (req, res) => {
   <div id="checkout"></div>
   <script>
     Checkout({
-      stripePublicKey: checkout.stripePublicKey,
-      clientSecret: checkout.clientSecret,
+      stripePublicKey: '{{stripePublicKey}}',
+      clientSecret: '{{clientSecret}}',
     });
   </script>
 </body>
