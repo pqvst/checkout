@@ -11,7 +11,7 @@ A simple, open-source, lightweight, checkout page for [Stripe](https://stripe.co
 - Re-use existing saved card details
 - Payment Request Button / Apple Pay
 
-## Getting Started
+## Quick Start
 
 ```
 npm install --save checkout
@@ -26,9 +26,8 @@ const checkout = require('checkout')(STRIPE_SECRET_KEY);
 // Serve the client-side library
 app.use('/js/checkout.js', express.static('./node_modules/checkout/dist/checkout.js'));
 
-// Render the checkout page
+// Render the payment form and pass options
 app.get('/upgrade', async (req, res) => {
-  // Render the payment form and pass the required client-side config values
   res.render('checkout', {
     checkout: {
       stripePublicKey: STRIPE_PUBLIC_KEY,
@@ -37,20 +36,16 @@ app.get('/upgrade', async (req, res) => {
   });
 });
 
-// Update the subscription
+// Create or update the user's subscription
 app.post('/upgrade', async (req, res) => {
-  // Create a stripe customer and upgrade the subscription
-  const stripeCustomerId = await checkout.manageSubscription(null, {
+  const user = req.user;
+  user.stripeCustomerId = await checkout.manageSubscription(user.stripeCustomerId, {
     plan: '<plan_id>',
     email: req.body.email,
     name: req.body.name,
-    country: req.body.country,
-    vat: req.body.vat,
-    coupon: req.body.coupon,
     paymentMethod: req.body.paymentMethod,
   });
-  // Save the stripeCustomerId...
-  // req.user.stripeCustomerId = stripeCustomerId;
+  await user.save();
   res.redirect('/');
 });
 ```
@@ -86,91 +81,124 @@ app.post('/upgrade', async (req, res) => {
 
 
 
-## Client-Side Configuration
-Initialize the client-side with one line of code to automatically create a complete payment form. Several configuration options and customization points are available.
+## Client-Side API
+Initialize the client-side with one line of code to automatically create a complete payment form. Many configuration options and customization points are available.
 
 ```js
 Checkout({
   stripePublicKey: '...',
   clientSecret: '...',
-  header: 'Upgrade your plan!',
-  title: '$10.00 per month',
-  action: 'Upgrade',
-  email: true,
-  card: true,
-  name: true,
-  country: true,
-  postcode: true,
-  vat: false,
-  coupon: true,
-  disclaimer: false,
-  provider: false,
-  vatValidationUrl: '/validateVat',
-  couponValidationUrl: '/validateCoupon',
-  taxOrigin: 'SE',
-  prefill: {
-    customer: {
-      email: 'customer@example.com',
-      name: 'Bob',
-      country: 'GB',
-      postcode: 'ABC 123',
-      vat: 'GB123123123'
-    },
-    card: {
-      month: 4,
-      year: 2024,
-      last4: '1234'
+  ...
+});
+```
+
+### Options
+
+Name | Type | Description
+--|--|--
+element | string | Selector to the element where the form will be mounted (default `'#checkout'`)
+stripePublicKey | string | Your account Stripe public key **(required)**
+clientSecret | string | Client secret generated using the server-side API helper `checkout.getClientSecret()` **(required)**
+headerText | string | Custom header text shown above title
+titleText | string | Custom title text shown (default: `'Payment Form'`)
+actionText | string | Button text (default: `'continue'`)
+errorText | string | Generic custom error message
+showEmail | bool | Show the email field (default `true`)
+disableEmail | bool | Make the email field readonly (default `false`)
+showName | bool | Show the name field (default `true`)
+disableName | bool | Make the name field readonly (default `false`)
+showCard | bool | Show the card fields (default `true`)
+disableCard | bool | Make the card field readonly (default `false`)
+showCountry | bool | Show the country field (default `false`)
+disableCountry | bool | Make the country field readonly (default `false`)
+showPostcode | bool | Show the postcode field (default `false`)
+disablePostcode | bool | Make the postcode field readonly (default `false`)
+showVat | bool | Show the vat field (default `false`)
+disableVat | bool | Make the vat field readonly (default `false`)
+vatValidationUrl | string | Endpoint to validate VAT numbers (see [VAT Collection](#vat-collection)).
+showCoupon | bool | Show the coupon field (default `false`)
+disableCoupon | bool | Make the coupon field readonly (default `false`)
+couponValidationUrl | string | Endpoint to validate coupon codes (see [Coupons](#coupons)).
+showDisclaimer | bool | Show the disclaimer text (default `true`)
+disclaimerText | string | Custom disclaimer text
+showProvider | bool | Show the *powered by* text (default `true`)
+taxOrigin | string | Country code where you pay tax (used to automatically show/hide the VAT field based on the selected country). See [VAT Collection](#vat-collection)
+prefill | object | Prefill form fields (see [Prefill](#prefill) below)
+
+
+### Prefill
+You can prefill all form fields using the structure specified below. Any prefilled fields can be marked as readonly by using the `disableX` options specified above.
+
+```
+prefill: {
+  customer: { ... },
+  card: { ... },
+  coupon: '...'
+}
+```
+
+The prefill structure matches the response of the server-side API `checkout.getSubscription()` helper, so you can easily prefill with all existing values:
+
+```js
+res.render('checkout', {
+  checkout: {
+    prefill: await checkout.getSubscription(user.stripeCustomerId)
+  }
+});
+```
+
+If you would like to provide customer defaults (in case the user doesn't have a stripe customer yet) you can do so simply like this:
+
+```js
+const sub = await checkout.getSubscription(user.stripeCustomerId)
+res.render('checkout', {
+  checkout: {
+    prefill: {
+      customer: sub.customer || { email: user.email },
+      card: sub.card,
     }
   }
 });
 ```
 
+#### Customer Prefill
+Name | Type | Description
+-- | -- | --
+email | string | Email address
+name | string | Customer name
+country | string | Selected country code (ISO 3166 alpha-2 country code)
+vat | string | VAT number
 
+#### Card Prefill
+When card prefill is used, the form will offer the user a choice to use their existing card details or specify new card information. This is especially useful during upgrade flows, allowing users to confirm and use their existing card details. A warning is shown if the prefilled card has expired.
 
-#### Required
-- `stripePublicKey` - Your Stripe account public key
-- `clientSecret` - Client secret generated using the server-side library helper `checkout.getClientSecret()`
+ADD SCREENSHOT HERE
 
-#### Customization
-- `header` - Header text shown above the title
-- `title` - Title text shown above the payment form
-- `action` - Text shown on the submit button
-- `disclaimer` Disclaimer text (`true`/`false`/`'Custom disclaimer text...'`)
-- `provider` Provider information (`true`/`false`)
-- `email` - Email field (`true`/`false`/`'disable'`) 
-- `card` - Card input (`true`/`false`/`'disable'`) 
-- `name` - Name field (`true`/`false`/`'disable'`) 
-- `country` - Country field (`true`/`false`/`'disable'`) 
-- `postcode` - Postal code field (`true`/`false`/`'disable'`) 
-- `vat` - VAT field (`true`/`false`/`'disable'`) 
-- `coupon` - Coupon field (`true`/`false`/`'disable'`) 
-- `vatValidationUrl` - Endpoint to validate VAT numbers (see below)
-- `couponValidationUrl` - Endpoint to validate coupons (see below)
-- `taxOrigin` - Country where you pay tax (used to determine toggle the VAT field)
-- `prefill` - Prefill customer and card details
-- `error` - Generic error message
-
-#### Prefill Customer
-- `email` - Pre-fill customer email address
-- `name` - Pre-fill customer name
-- `country` - Pre-fill customer country (ISO 3166 alpha-2 country code)
-- `vat` - Pre-fill customer vat number
-- `coupon` - Pre-fill coupon code
-
-#### Prefill Card
-- `month` - Expiry month (e.g. `6`)
-- `year` - Expiry year (e.g. `2024`)
-- `last4` - Last 4 digits (e.g. `'1234'`)
+Name | Type | Description
+-- | -- | --
+month | number | Card expiry month (1-12)
+year | number | Card expiry year (e.g. 2020)
+last4 | string | Card last 4 numbers
 
 
 ## Server-Side API
-The server-side helper library provides several easy-to-use helpers to manage Stripe subscriptions.
+The server-side helper library provides several easy-to-use helpers to manage Stripe subscriptions. You can, of course, invoke the Stripe API directly yourself if you prefer to do so.
 
-### `checkout.getClientSecret`
-Generates a client secret required to render the client-side checkout page.
+### `checkout.getClientSecret()`
+Generates a setup intent client secret required to render the client-side checkout page.
 
 ### `checkout.getSubscription( stripeCustomerId )`
 Retrieve the current subscription status. Returns `valid: false` if there is no active subscription. `card` and `customer` will always be returned if available (e.g. from a previous cancelled subscription).
+
+- `valid` - True if the subscription is in a valid state (not incomplete or past due)
+- `cancelled` - True if the subscription will cancel at the end of the current period
+- `card` - Card details (null if no card)
+- `plan` - Plan details (null if no plan)
+- `customer` - Customer details (null if no customer)
+- `status` - Text friendly description (see below)
+
+#### Example response for a valid active subscription:
+A valid active subscription represents any state where the user is subscribed to a plan that is still active. This includes cases where the plan has been set to cancel at the end of the period (indicated by `cancelled` as `true`), or a first renewal attempt has failed to process.
 
 ```js
 { id: 'sub_xxx',
@@ -198,69 +226,97 @@ Retrieve the current subscription status. Returns `valid: false` if there is no 
   status: 'Renews on Aug 31, 2019' }
 ```
 
-- `valid` - True if the subscription is in a valid state.
-- `cancelled` - True if the subscription will cancel at the end of the period
-- `card` - Card details
-- `plan` - Plan details
-- `customer` - Customer details
-- `status` - Text friendly description (see below)
-
-#### Status
-- Trailing until <trial_end>
-- Cancels on <current_period_end>
-- Renews on <current_period_end>
-- Invalid payment method (requires action)
-- Invalid payment method
-- Waiting for a new attempt
-- Past due
-
-
-### `checkout.manageSubscription( stripeCustomerId, { ... } )`
-If `stripeCustomerId` is `null` then a new customer will be created automatically. The function always returns a stripe customer ID so that you can associate it with a user in your application.
-
-#### Options
-- `plan` - Update subscription plan (upgrade/downgrade)
-- `email` - Update customer email
-- `name` - Update customer name
-- `country` - Update customer country code
-- `paymentMethod` - Update default payment method (new credit card)
-- `coupon` - Update subscription coupon code
-- `trialDays` - Update subscription trial days
-- `vat` - Update customer VAT number
-- `taxOrigin` - The country where you pay tax (e.g. SE)
-- `taxRates` - Tax rates to apply
-
-#### Taxation
-EU VAT taxation is automatically determined. If your `taxOrigin` is an EU country and a valid VAT number and an EU country code is provided then the customer taxation status will be set to `reverse`. Non-EU countries will be set to `exempt`. All other will be set to taxable. Note that tax will only be applied if a `tax_rate` ID is provided. 
-
-```
-taxOrigin is EU AND country is taxOrigin => taxable
-taxOrigin: SE and country: SE => taxable
-taxOrigin: EU-country AND country == reverse
-```
-
-Individual tax rates per country are supported (e.g. different EU tax rates) as well as a default tax rate that will be applied otherwise.
+#### Example response for a new user (no stripe customer):
+A new user will not have a valid subscription and not have any existing card or customer information.
 
 ```js
-{ 
-  taxOrigin: 'SE',
-  taxRates: { default: '...' } 
-}
-
-{ 
-  taxOrigin: 'SE',
-  taxRates: {
-    US: '...',
-    default: '...',
-  }
-}
+{ valid: false,
+  card: null,
+  plan: null,
+  customer: null }
 ```
 
+#### Example response for a previously subscribed customer:
+Note that `card` and `customer` are returned since the customer already has a card and customer information on file. `plan` is `null` and `valid` is `false` since there is no active subscription.
+
+```js
+{ valid: false,
+  card: { ... },
+  plan: null,
+  customer: { ... } }
+```
+
+#### Example response for an invalid active subscription:
+An invalid active subscription represents the cases where the user is subscribed to a plan however their card may have been declined on the first attempt or payment past due when all payment attempts have failed. Note that the only difference here is that `valid` is `false`.
+
+```js
+{ valid: false,
+  card: { ... },
+  plan: { ... },
+  customer: { ... },
+  status: 'Past due. Your card was declined' }
+```
+
+#### State Summary
+status | valid | cancelled
+-- | -- | --
+Trailing until <trial_end> | true | false
+Cancels on <current_period_end> | true | true
+Renews on <current_period_end> | true | false
+Invalid payment method (requires action) | false | false
+Invalid payment method | false | false
+Waiting for a new attempt | false | false
+Past due | false | false
+
+### `checkout.manageSubscription( stripeCustomerId, { ... } )`
+Create and update subscriptions. If `stripeCustomerId` is `null` a new customer will be created automatically. Otherwise, the existing customer will be updated. The function always returns a stripe customer ID so that you can associate it with a user in your application.
+
+#### Options
+All options are optional unless specified otherwise.
+
+Name | Type | Description
+-- | -- | --
+plan | string | New stripe plan ID (requires an existing payment method to be on file already, or that a new payment method is provided using the `paymentMethod` option).
+email | string | New customer email address
+name | string | New customer name
+country | string | New customer country code
+paymentMethod | string | New payment method ID
+coupon | string | New coupon code to apply
+trialDays | number | New trial days to apply
+vat | string | New customer VAT number
+taxRates | object | Tax rates to apply (see [Tax Rates](#tax-rates) below)
+taxExempt | string | `taxable`, `reverse`, `exempt`
+taxOrigin | string | Your tax origin used to determine taxation
+
+#### Tax Rates
+You can apply a default tax rate for all customers or individual per-country tax rates. By default all customers are set to `taxable`, unless overridden by `taxExempt` or by automatic [VAT Collection](#vat-collection).
+
+Apply a default tax rate to all customers:
+```js
+{ default: '...' }
+```
+
+Only apply a tax rate for `GB` customers:
+
+```js
+{ GB: '...' }
+```
+
+Apply a specific tax rate for `US` customers, otherwise use the default tax rate:
+
+```js
+{ US: '...',
+  default: '...' }
+```
+
+A tax rate should be a valid Stripe `tax_rate` object ID.
+
+
 ### `checkout.cancelSubscription( stripeCustomerId, atPeriodEnd = true )`
-Cancel an existing subscription (default at period end).
+Cancel an existing subscription (default at period end). If `atPeriodEnd` is `true`, the plan will cancel at the current period end and `cancelled` will be set to `true` until that time is reached. Otherwise the subscription will be cancelled immediately.
 
 ### `checkout.reactivateSubscription( stripeCustomerId )`
-Reactivate a cancelled subscription.
+Reactivate a cancelled subscription. This only applies to subscriptions that are set to cancel at the period end.
 
 ### `checkout.deleteSubscription( stripeCustomerId )`
 Immediately delete a subscription.
@@ -287,15 +343,39 @@ Helper to validate coupon codes. See [Coupon validation]()
 
 
 ## VAT Collection
+VAT collection rules are complicated. However, it is quite simple to automatically collect and validate VAT numbers, as well as automatically determine taxation rules for individual customers. There are 3 main steps:
+
+ADD SCREENSHOT HERE
+
+### 1. Client-Side
+First make sure to pass the required options when initializing the client-side library.
 
 ```js
 Checkout({
-  vat: true,
+  showVat: true,
+  showCountry: true,
   vatValidationUrl: '/validateVat',
   taxOrigin: 'GB',
+  ...
 });
 ```
 
+Let's go through the options one by one:
+- `showVat` will show the vat number field (hidden by default)
+- `showCountry` will show the country field (hidden by default)
+- `vatValidationUrl` the endpoint to use for validation (covered in the next step)
+- `taxOrigin` automatically toggle the vat field based on the selected country
+
+Based on the specified tax origin and the country that the user selects, the VAT number field will be toggled automatically as described by the table below: 
+taxOrigin | country | vat
+-- | -- | --
+non-EU country | N/A | hidden
+EU country | same as tax origin | shown
+EU country | other EU country | shown
+
+When the VAT field is shown, the number provided will be validated using the specified validation endpoint. Implementation instructions are shown below.
+
+### 2. Validation
 If a `vatValidationUrl` is passed to the client-side library initialization, then the VAT number will be validated using a `GET` request to the specified URL, with a query string parameter `q` containing the VAT number. If the response status code is `200` then validation succeeds. Any other status code will fail.
 
 ```
@@ -312,22 +392,38 @@ app.get('/validateVatNumber', (req, res) => {
 });
 ```
 
-Initialize client-side library:
+### 3. Server-Side
+Once the payment form is submitted, be sure to specify the following options to the `checkout.manageSubscription` function.
 
 ```js
-Checkout({
-  vatValidationUrl: '/validateVatNumber',
-  ...
-})
+app.post('/upgrade', (req, res) => {
+  checkout.manageSubscription(user.stripeCustomerId, {
+    taxOrigin: 'GB',
+    taxRates: { ... },
+    vat: req.body.vat,
+    country: req.body.country,
+  }).then(...);
+});
 ```
 
+With these options, the taxation mode for the customer is automatically determined and the correct tax rate is applied. The table below outlines the taxation mode that will be set based on your tax origin, the country the user selects, and the vat number the user provides.
+
+taxOrigin | country | vat | taxation
+-- | -- | -- | --
+non-EU | N/A | N/A | taxable
+EU country | non-EU country | N/A | exempt
+EU country | same as tax origin | N/A | taxable
+EU country | other EU country | `null` | taxable
+EU country | other EU country | provided and valid | reverse
+
+Note that a tax rate is always attached to the customer even if the taxation mode is set to exempt or reverse.
 
 ## Coupons
 Checkout supports showing a coupon code field with optional validation. To show the coupon field simply pass `coupon: true` to the client-side configuration. You can also specify a validation endpoint.
 
 ```js
 Checkout({
-  coupon: true,
+  showCoupon: true,
   couponValidationUrl: '/validateCoupon',
   ...
 })
@@ -361,16 +457,4 @@ app.post('/upgrade', (req, res) => {
 
 
 ## Example Implementation
-The example projects includes a simple web app that allows a user to view their subscription, upgrade, change card, cancel and reactivate their subscription.
-
-[Example](example/)
-
-
-
-## Subscription States / Incomplete / Past Due etc...
-- Customer without subscription
-- Customer with card
-- etc...
-
-
-## Payment Request Button (Apple Pay / Google Pay / Microsoft Pay)
+The [example project](example/) includes a simple web app that allows a user to view their subscription, upgrade, change card, cancel and reactivate their subscription.

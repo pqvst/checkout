@@ -15,18 +15,36 @@ import { isCardExpired } from '../lib/util';
 
 
 const defaults = {
-  header: null,
-  title: null,
-  action: null,
-  email: true,
-  card: true,
-  name: true,
-  country: false,
-  postcode: false,
-  vat: false,
-  coupon: false,
-  disclaimer: true,
-  provider: true,
+  stripePublicKey: null,
+  clientSecret: null,
+
+  headerText: null,
+  titleText: null,
+  actionText: null,
+  errorText: null,
+  
+  showEmail: true,
+  disableEmail: false,
+  showName: true,
+  disableName: false,
+  showCard: true,
+  disableCard: false,
+  showCountry: false,
+  disableCountry: false,
+  showPostcode: false,
+  disablePostcode: false,
+  showVat: false,
+  disableVat: false,
+  showCoupon: false,
+  disableCoupon: false,
+  showDisclaimer: true,
+  disclaimerText: null,
+  showProvider: true,
+
+  vatValidationUrl: null,
+  couponValidationUrl: null,
+  taxOrigin: null,
+
   prefill: null,
 };
 
@@ -98,27 +116,26 @@ function Checkout(opts) {
   }
 
   new Vue({
-    el: '#checkout',
+    el: opts.element || '#checkout',
 
     template,
 
     data: {
       // Customization
-      header: opts.header,
-      title: opts.title,
-      action: opts.action,
+      header: opts.headerText,
+      title: opts.titleText,
+      action: opts.actionText,
 
-      // true/false/disable
       fields: {
-        email: opts.email,
-        card: opts.card,
-        name: opts.name,
-        country: opts.country,
-        postcode: opts.postcode,
-        coupon: opts.coupon,
-        vat: opts.vat,
-        disclaimer: opts.disclaimer,
-        provider: opts.provider,
+        email: opts.showEmail,
+        card: opts.showCard,
+        name: opts.showName,
+        country: opts.showCountry,
+        postcode: opts.showPostcode,
+        coupon: opts.showCoupon,
+        vat: opts.showVat,
+        disclaimer: opts.showDisclaimer,
+        provider: opts.showProvider,
       },
 
       values: {
@@ -133,13 +150,13 @@ function Checkout(opts) {
       },
 
       disabled: {
-        email: opts.email == 'disable',
-        card: opts.card == 'disable',
-        name: opts.name == 'disable',
-        country: opts.country == 'disable',
-        postcode: opts.postcode == 'disable',
-        vat: opts.vat == 'disable',
-        coupon: opts.coupon == 'disable',
+        email: opts.disableEmail,
+        card: opts.disableCard,
+        name: opts.disableName,
+        country: opts.disableCountry,
+        postcode: opts.disablePostcode,
+        vat: opts.disableVat,
+        coupon: opts.disableCoupon,
       },
 
       errors: {
@@ -169,11 +186,7 @@ function Checkout(opts) {
         return this.action || 'Continue';
       },
       disclaimerText() {
-        if (this.fields.disclaimer == true) {
-          return 'Your security is important to us. We do not store or process your credit card information. Online payments are passed via a secure socket layer to a payment processor where your information is tokenized (whereby a random number is generated to represent your payment). The payment processor is PCI compliant which ensures that your information is being handled in accordance with industry security standards.';
-        } else {
-          return this.fields.disclaimer;
-        }
+        return opts.disclaimerText || 'Your security is important to us. We do not store or process your credit card information. Online payments are passed via a secure socket layer to a payment processor where your information is tokenized (whereby a random number is generated to represent your payment). The payment processor is PCI compliant which ensures that your information is being handled in accordance with industry security standards.';
       },
     },
 
