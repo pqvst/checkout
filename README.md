@@ -9,7 +9,6 @@ A simple, open-source, lightweight, checkout page for [Stripe](https://stripe.co
 - Single subscriptions per customer
 - Single payment methods per customer
 - Re-use existing saved card details
-- Payment Request Button / Apple Pay
 
 ## Quick Start
 
