@@ -6,7 +6,7 @@
 
   .container
     .header {{header}}
-    .title {{title || 'Payment information'}}
+    .title {{title}}
 
     form(v-on:submit.prevent="submit" ref="form" method="POST")
       .error {{errors.load}}
@@ -39,7 +39,7 @@
               #card-expiry.stripe-input
               #card-cvc.stripe-input
           .error(v-if="errors.card") {{errors.card}}
-          .toggle(v-if="values.card && !disabled.card" v-on:click="toggleEditCard") Use saved card information
+          .toggle(v-if="values.card && !disabled.card" v-on:click="toggleEditCard" v-bind:style="linkStyle") Use saved card information
 
         div(v-if="disabled.card || !editCard")
           div(v-if="values.card")
@@ -54,7 +54,7 @@
               .flex
                 .card-expiry.stripe-input-prefilled
                 .card-cvc.stripe-input-prefilled
-          .toggle(v-if="!disabled.card" v-on:click="toggleEditCard") Edit card information
+          .toggle(v-if="!disabled.card" v-on:click="toggleEditCard" v-bind:style="linkStyle") Edit card information
 
       //-------------------------------------------------------------------------------------------------------------------------
       //- Name
@@ -130,13 +130,13 @@
       //-------------------------------------------------------------------------------------------------------------------------
       //- Submit
       //-------------------------------------------------------------------------------------------------------------------------
-      button(type="submit" v-bind:disabled="processing") {{submitText}}
+      button(type="submit" v-bind:disabled="processing" v-bind:style="submitStyle") {{action}}
 
     //-------------------------------------------------------------------------------------------------------------------------
     //- Disclaimer
     //-------------------------------------------------------------------------------------------------------------------------
     template(v-if="fields.disclaimer")
-      .disclaimer {{disclaimerText}}
+      .disclaimer {{disclaimer}}
 
     //-------------------------------------------------------------------------------------------------------------------------
     //- Provider

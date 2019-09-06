@@ -15,12 +15,14 @@ import { isCardExpired } from '../lib/util';
 
 
 const defaults = {
+  element: '#checkout',
   stripePublicKey: null,
   clientSecret: null,
 
+  themeColor: null,
   headerText: null,
-  titleText: null,
-  actionText: null,
+  titleText: 'Payment Information',
+  actionText: 'Continue',
   errorText: null,
   
   showEmail: true,
@@ -38,7 +40,7 @@ const defaults = {
   showCoupon: false,
   disableCoupon: false,
   showDisclaimer: true,
-  disclaimerText: null,
+  disclaimerText: 'Your security is important to us. We do not store or process your credit card information. Online payments are passed via a secure socket layer to a payment processor where your information is tokenized (whereby a random number is generated to represent your payment). The payment processor is PCI compliant which ensures that your information is being handled in accordance with industry security standards.',
   showProvider: true,
 
   vatValidationUrl: null,
@@ -94,7 +96,7 @@ function Checkout(opts) {
     }
   };
 
-  let loadError = opts.error;
+  let loadError = opts.errorText;
   let stripe, cardNumber, cardExpiry, cardCvc;
 
   if (!stripePublicKey) {
@@ -116,7 +118,7 @@ function Checkout(opts) {
   }
 
   new Vue({
-    el: opts.element || '#checkout',
+    el: opts.element,
 
     template,
 
@@ -125,6 +127,8 @@ function Checkout(opts) {
       header: opts.headerText,
       title: opts.titleText,
       action: opts.actionText,
+      disclaimer: opts.disclaimerText,
+      theme: opts.themeColor,
 
       fields: {
         email: opts.showEmail,
@@ -182,12 +186,20 @@ function Checkout(opts) {
       editCardExpired() {
         return !this.editCard && this.values.card && isCardExpired(this.values.card.exp_month, this.values.card.exp_year);
       },
-      submitText() {
-        return this.action || 'Continue';
+      submitStyle() {
+        if (this.theme) {
+          return { backgroundColor: this.theme };
+        } else {
+          return null;
+        }
       },
-      disclaimerText() {
-        return opts.disclaimerText || 'Your security is important to us. We do not store or process your credit card information. Online payments are passed via a secure socket layer to a payment processor where your information is tokenized (whereby a random number is generated to represent your payment). The payment processor is PCI compliant which ensures that your information is being handled in accordance with industry security standards.';
-      },
+      linkStyle() {
+        if (this.theme) {
+          return { color: this.theme };
+        } else {
+          return null;
+        }
+      }
     },
 
     watch: {

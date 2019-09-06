@@ -99,10 +99,11 @@ Name | Type | Description
 element | string | Selector to the element where the form will be mounted (default `'#checkout'`)
 stripePublicKey | string | Your account Stripe public key **(required)**
 clientSecret | string | Client secret generated using the server-side API helper `checkout.getClientSecret()` **(required)**
+themeColor | string | Custom color for buttons and links
 headerText | string | Custom header text shown above title
-titleText | string | Custom title text shown (default: `'Payment Form'`)
-actionText | string | Button text (default: `'continue'`)
-errorText | string | Generic custom error message
+titleText | string | Custom title text shown (default: `'Payment Information'`)
+actionText | string | Button text (default: `'Continue'`)
+errorText | string | Display a custom error message (e.g. backend error message)
 showEmail | bool | Show the email field (default `true`)
 disableEmail | bool | Make the email field readonly (default `false`)
 showName | bool | Show the name field (default `true`)
@@ -121,7 +122,7 @@ disableCoupon | bool | Make the coupon field readonly (default `false`)
 couponValidationUrl | string | Endpoint to validate coupon codes (see [Coupons](#coupons)).
 showDisclaimer | bool | Show the disclaimer text (default `true`)
 disclaimerText | string | Custom disclaimer text
-showProvider | bool | Show the *powered by* text (default `true`)
+showProvider | bool | Show the 'powered by' text (default `true`)
 taxOrigin | string | Country code where you pay tax (used to automatically show/hide the VAT field based on the selected country). See [VAT Collection](#vat-collection)
 prefill | object | Prefill form fields (see [Prefill](#prefill) below)
 
