@@ -64,9 +64,8 @@ app.get('/card', async (req, res) => {
     checkout: {
       stripePublicKey: STRIPE_PUBLIC_KEY,
       clientSecret: await checkout.getClientSecret(),
-      header: '',
-      title: 'Update card details',
-      action: 'Save',
+      titleText: 'Update card details',
+      actionText: 'Save',
       prefill: sub,
     }
   });
@@ -96,12 +95,12 @@ app.get('/upgrade', async (req, res) => {
     checkout: {
       stripePublicKey: STRIPE_PUBLIC_KEY,
       clientSecret: await checkout.getClientSecret(),
-      header: 'Upgrade to Gold',
-      title: '$10.00 per month',
-      action: 'Upgrade',
-      prefill: sub,
-      coupon: true,
+      headerText: 'Upgrade to Gold',
+      titleText: '$10.00 per month',
+      showCoupon: true,
+      actionText: 'Upgrade',
       couponValidationUrl: '/validateCoupon',
+      prefill: sub,
     }
   });
 });
