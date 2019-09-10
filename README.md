@@ -174,8 +174,6 @@ vat | string | VAT number
 #### Card Prefill
 When card prefill is used, the form will offer the user a choice to use their existing card details or specify new card information. This is especially useful during upgrade flows, allowing users to confirm and use their existing card details. A warning is shown if the prefilled card has expired.
 
-ADD SCREENSHOT HERE
-
 Name | Type | Description
 -- | -- | --
 month | number | Card expiry month (1-12)
@@ -346,8 +344,6 @@ Helper to validate coupon codes. See [Coupon validation]()
 
 ## VAT Collection
 VAT collection rules are complicated. However, it is quite simple to automatically collect and validate VAT numbers, as well as automatically determine taxation rules for individual customers. There are 3 main steps:
-
-ADD SCREENSHOT HERE
 
 ### 1. Client-Side
 First make sure to pass the required options when initializing the client-side library.
