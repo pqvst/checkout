@@ -18,6 +18,7 @@ const defaults = {
   element: '#checkout',
   stripePublicKey: null,
   clientSecret: null,
+  userData: null,
 
   themeColor: null,
   headerText: null,
@@ -151,6 +152,7 @@ function Checkout(opts) {
         vat: opts.prefill.customer.vat,
         coupon: opts.prefill.coupon,
         paymentMethod: '',
+        userData: opts.userData,
       },
 
       disabled: {
