@@ -4,7 +4,7 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "start": "nodemon example/app",
+    "start": "concurrently -r \"npm run watch\" \"nodemon example/app\"",
     "build": "webpack",
     "watch": "webpack --watch",
     "lint": "eslint . --fix",
@@ -13,9 +13,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@vue/cli": "^3.11.0",
+    "@babel/preset-env": "^7.6.0",
     "babel-loader": "^8.0.6",
     "body-parser": "^1.19.0",
+    "concurrently": "^4.1.2",
     "core-js": "^3.2.1",
     "css-loader": "^3.2.0",
     "dotenv": "^8.1.0",
