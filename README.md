@@ -98,6 +98,8 @@ Name | Type | Description
 element | string | Selector to the element where the form will be mounted (default `'#checkout'`)
 stripePublicKey | string | Your account Stripe public key **(required)**
 clientSecret | string | Client secret generated using the server-side API helper `checkout.getClientSecret()` **(required)**
+formAction | string | Override form action (POST endpoint)
+userData | string | Custom user data that will be POSTed back to the server
 themeColor | string | Custom color for buttons and links
 headerText | string | Custom header text shown above title
 titleText | string | Custom title text shown (default: `'Payment Information'`)
