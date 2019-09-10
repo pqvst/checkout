@@ -19,6 +19,7 @@ const defaults = {
   stripePublicKey: null,
   clientSecret: null,
   userData: null,
+  formAction: null,
 
   themeColor: null,
   headerText: null,
@@ -130,6 +131,7 @@ function Checkout(opts) {
       action: opts.actionText,
       disclaimer: opts.disclaimerText,
       theme: opts.themeColor,
+      formAction: opts.formAction,
 
       fields: {
         email: opts.showEmail,

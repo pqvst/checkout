@@ -8,7 +8,7 @@
     .header {{header}}
     .title {{title}}
 
-    form(v-on:submit.prevent="submit" ref="form" method="POST")
+    form(v-on:submit.prevent="submit" ref="form" method="POST" v-bind:action="formAction")
       .error {{errors.load}}
 
       //-------------------------------------------------------------------------------------------------------------------------
