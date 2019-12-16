@@ -1,25 +1,30 @@
+const { expect } = require('chai');
 const validateVat = require('../lib/validate-vat');
 
-test('empty', async () => {
-  expect(await validateVat()).toBe(false);
-});
+describe('validate-vat', () => {
 
-test('valid', async () => {
-  expect(await validateVat('IE', '6388047V')).toBe(true);
-});
+  it('empty', async () => {
+    expect(await validateVat()).to.equal(false);
+  });
 
-test('invalid', async () => {
-  expect(await validateVat('XX', 'XX')).toBe(false);
-});
+  it('valid', async () => {
+    expect(await validateVat('IE', '6388047V')).to.equal(true);
+  });
 
-test('invalid country', async () => {
-  expect(await validateVat('XX', '6388047V')).toBe(false);
-});
+  it('invalid', async () => {
+    expect(await validateVat('XX', 'XX')).to.equal(false);
+  });
 
-test('invalid number', async () => {
-  expect(await validateVat('IE', 'XXX')).toBe(false);
-});
+  it('invalid country', async () => {
+    expect(await validateVat('XX', '6388047V')).to.equal(false);
+  });
 
-test('malformed request', async () => {
-  expect(await validateVat('<', '<')).toBe(false);
+  it('invalid number', async () => {
+    expect(await validateVat('IE', 'XXX')).to.equal(false);
+  });
+
+  it('malformed request', async () => {
+    expect(await validateVat('<', '<')).to.equal(false);
+  });
+
 });

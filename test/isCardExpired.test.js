@@ -1,3 +1,4 @@
+const { expect } = require('chai');
 const moment = require('moment');
 const { isCardExpired } = require('../lib/util');
 
@@ -14,39 +15,42 @@ function getMonthYear(deltaMonth, deltaYear) {
   ];
 }
 
+describe('util.isCardExpired', () => {
 
-test('same month, same year', () => {
-  expect(isCardExpired(...getMonthYear(0, 0))).toBe(false);
-});
-
-test('higher month, higher year', () => {
-  expect(isCardExpired(...getMonthYear(1, 1))).toBe(false);
-});
-
-test('lower month, lower year', () => {
-  expect(isCardExpired(...getMonthYear(-1, -1))).toBe(true);
-});
-
-test('higher year', () => {
-  expect(isCardExpired(...getMonthYear(0, 1))).toBe(false);
-});
-
-test('lower year', () => {
-  expect(isCardExpired(...getMonthYear(0, -1))).toBe(true);
-});
-
-test('higher month', () => {
-  expect(isCardExpired(...getMonthYear(1, 0))).toBe(false);
-});
-
-test('lower month', () => {
-  expect(isCardExpired(...getMonthYear(-1, 0))).toBe(true);
-});
-
-test('lower year, higher month', () => {
-  expect(isCardExpired(...getMonthYear(1, -1))).toBe(true);
-});
-
-test('lower month, higher year', () => {
-  expect(isCardExpired(...getMonthYear(-1, 1))).toBe(false);
+  it('same month, same year', () => {
+    expect(isCardExpired(...getMonthYear(0, 0))).to.equal(false);
+  });
+  
+  it('higher month, higher year', () => {
+    expect(isCardExpired(...getMonthYear(1, 1))).to.equal(false);
+  });
+  
+  it('lower month, lower year', () => {
+    expect(isCardExpired(...getMonthYear(-1, -1))).to.equal(true);
+  });
+  
+  it('higher year', () => {
+    expect(isCardExpired(...getMonthYear(0, 1))).to.equal(false);
+  });
+  
+  it('lower year', () => {
+    expect(isCardExpired(...getMonthYear(0, -1))).to.equal(true);
+  });
+  
+  it('higher month', () => {
+    expect(isCardExpired(...getMonthYear(1, 0))).to.equal(false);
+  });
+  
+  it('lower month', () => {
+    expect(isCardExpired(...getMonthYear(-1, 0))).to.equal(true);
+  });
+  
+  it('lower year, higher month', () => {
+    expect(isCardExpired(...getMonthYear(1, -1))).to.equal(true);
+  });
+  
+  it('lower month, higher year', () => {
+    expect(isCardExpired(...getMonthYear(-1, 1))).to.equal(false);
+  });
+  
 });
