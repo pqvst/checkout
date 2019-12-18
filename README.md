@@ -19,8 +19,10 @@ npm install --save checkout
 #### app.js
 
 ```js
-// Initialize server-side library with your stripe secret key
-const checkout = require('checkout')(STRIPE_SECRET_KEY);
+const stripe = require('stripe')(STRIPE_SECRET_KEY);
+
+// Initialize server-side library with your stripe instance
+const checkout = require('checkout')(stripe);
 
 // Serve the client-side library
 app.use('/js/checkout.js', express.static('./node_modules/checkout/dist/checkout.js'));

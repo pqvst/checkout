@@ -19,7 +19,8 @@ if (!PREMIUM_PLAN_ID) {
 }
 
 
-const checkout = require('../lib')(STRIPE_SECRET_KEY);
+const stripe = require('stripe')(STRIPE_SECRET_KEY);
+const checkout = require('../lib')(stripe);
 
 
 // Setup express
