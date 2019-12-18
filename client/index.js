@@ -211,6 +211,11 @@ function Checkout(opts) {
         if (!value) {
           this.vat = '';
         }
+      },
+      editCard(value) {
+        if (value) {
+          this.$nextTick(() => cardNumber.focus());
+        }
       }
     },
 
