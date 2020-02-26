@@ -13,7 +13,7 @@ A simple, open-source, lightweight, checkout page for [Stripe](https://stripe.co
 ## Quick Start
 
 ```
-npm install --save checkout
+npm install --save pqvst/checkout
 ```
 
 #### app.js
