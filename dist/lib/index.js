@@ -405,5 +405,9 @@ class Checkout {
         return null;
     }
 }
-exports.default = Checkout;
+exports.Checkout = Checkout;
+function default_1(stripe) {
+    return new Checkout(stripe);
+}
+exports.default = default_1;
 //# sourceMappingURL=index.js.map

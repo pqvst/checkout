@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { ParsedReceipt, ParsedSubscription, ManageSubscriptionOptions } from './types';
-export default class Checkout {
+export declare class Checkout {
     private stripe;
     constructor(stripe: Stripe);
     getSubscription(stripeCustomerId: string): Promise<ParsedSubscription>;
@@ -40,3 +40,4 @@ export default class Checkout {
     private parseCustomer;
     private parsePlan;
 }
+export default function (stripe: Stripe): Checkout;

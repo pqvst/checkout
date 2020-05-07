@@ -13,8 +13,7 @@ import { formatUnixDate } from './util';
 import { getTax } from './tax';
 import { ParsedCard, ParsedCustomer, ParsedPlan, ParsedReceipt, ParsedSubscription, ManageSubscriptionOptions } from './types';
 
-export default class Checkout {
-  test: 'tasd';
+export class Checkout {
   private stripe: Stripe;
   constructor(stripe: Stripe) {
     if (!stripe) {
@@ -135,7 +134,6 @@ export default class Checkout {
           debug('update subscription plan:', plan);
           let trial_end;
           if (trialDays) {
-
             trial_end = moment().add(trialDays, 'days').valueOf();
           }
           await this.stripe.subscriptions.update(sub.id, {
@@ -425,4 +423,8 @@ export default class Checkout {
     }
     return null;
   }
+}
+
+export default function (stripe: Stripe): Checkout {
+  return new Checkout(stripe);
 }
