@@ -2,17 +2,30 @@
 // Test 3D Secure 2: 4000002500003155
 // Test failure: 4000000000000341
 // Test VAT number IE6388047V
+import Debug from 'debug';
+import Stripe from 'stripe';
+import moment from 'moment';
 
+const debug = Debug('checkout');
+import CREDIT_CARD_BRAND_NAMES from '../data/credit_card_brands';
+import validateVat from './validate-vat';
+import { formatUnixDate } from './util';
+import { getTax } from './tax';
+import { ParsedCard, ParsedCustomer, ParsedPlan, ParsedReceipt, ParsedSubscription, ManageSubscriptionOptions } from './types';
+export interface Checkout {
+  getClientSecret: Function;
+  getSubscription: Function;
+  validateVatNumber: Function;
+  manageSubscription: Function;
+  cancelSubscription: Function;
+  reactivateSubscription: Function;
+  deleteSubscription: Function;
+  deleteCustomer: Function;
+  getReceipts: Function;
+  validateCoupon: Function;
+}
 
-const debug = require('debug')('checkout');
-const CREDIT_CARD_BRAND_NAMES = require('../data/credit_card_brands');
-
-const validateVat = require('./validate-vat');
-const { formatUnixDate } = require('./util');
-const { getTax } = require('./tax');
-
-
-module.exports = function (stripe) {
+export default function (stripe: Stripe) {
   if (!stripe) {
     throw new Error('You must provide a stripe instance');
   }
@@ -20,7 +33,7 @@ module.exports = function (stripe) {
     throw new Error('You must provide a stripe instance (not an api key)');
   }
 
-  function parseCard(card) {
+  function parseCard(card: Stripe.Card | Stripe.PaymentMethod.Card): ParsedCard {
     if (card) {
       const month = String(card.exp_month).padStart(2, '0');
       const year = String(card.exp_year).slice(2);
@@ -37,21 +50,22 @@ module.exports = function (stripe) {
     }
   }
 
-  function getCard(customer, sub) {
+  // Stripe maximum confusion with two different Card types.
+  function getCard(customer: Stripe.Customer, sub: Stripe.Subscription): Stripe.PaymentMethod.Card | Stripe.Card {
     if (sub && sub.default_payment_method) {
-      return sub.default_payment_method.card;
+      return (sub.default_payment_method as Stripe.PaymentMethod).card;
     } else if (customer) {
       if (customer.invoice_settings.default_payment_method) {
-        return customer.invoice_settings.default_payment_method.card;
+        return (customer.invoice_settings.default_payment_method as Stripe.PaymentMethod).card;
       } else {
-        return customer.sources.data[0];
+        return (customer.sources.data[0] as Stripe.Card);
       }
     } else {
       return null;
     }
   }
 
-  function parseCustomer(customer) {
+  function parseCustomer(customer: Stripe.Customer): ParsedCustomer {
     if (customer) {
       return {
         id: customer.id,
@@ -65,7 +79,7 @@ module.exports = function (stripe) {
     return null;
   }
 
-  function parsePlan(sub) {
+  function parsePlan(sub: Stripe.Subscription): ParsedPlan {
     if (sub && sub.plan) {
       return {
         id: sub.plan.id,
@@ -79,10 +93,10 @@ module.exports = function (stripe) {
     return null;
   }
 
-  async function parseSubscription(customer) {
+  async function parseSubscription(customer: Stripe.Customer): Promise<ParsedSubscription> {
     const sub = customer ? customer.subscriptions.data[0] : null;
 
-    const resp = {
+    const resp: ParsedSubscription = {
       id: null,
       valid: false,
       cancelled: false,
@@ -120,13 +134,14 @@ module.exports = function (stripe) {
 
       case 'incomplete':
       case 'past_due': {
-        const invoice = await stripe.invoices.retrieve(sub.latest_invoice, {
+        const invoice = await stripe.invoices.retrieve(sub.latest_invoice as string, {
           expand: ['payment_intent']
         });
-        if (invoice.payment_intent.last_payment_error) {
-          resp.status = invoice.payment_intent.last_payment_error.message;
+        const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
+        if (paymentIntent.last_payment_error) {
+          resp.status = paymentIntent.last_payment_error.message;
         } else {
-          switch (invoice.payment_intent.status) {
+          switch (paymentIntent.status) {
             case 'requires_action': {
               resp.status = 'Invalid payment method (requires action)';
               break;
@@ -160,17 +175,17 @@ module.exports = function (stripe) {
   /**
    * Get setup intent client secret for payment method form.
    */
-  async function getClientSecret() {
+  async function getClientSecret(): Promise<string> {
     debug('creating setup intent');
     const si = await stripe.setupIntents.create();
     return si.client_secret;
   }
 
 
-  async function getSubscription(stripeCustomerId) {
+  async function getSubscription(stripeCustomerId: string): Promise<ParsedSubscription> {
     if (stripeCustomerId) {
       debug('fetching subscriptions');
-      const customer = await stripe.customers.retrieve(stripeCustomerId, { expand: ['invoice_settings.default_payment_method', 'subscriptions.data.default_payment_method'] });
+      const customer = (await stripe.customers.retrieve(stripeCustomerId, { expand: ['invoice_settings.default_payment_method', 'subscriptions.data.default_payment_method'] })) as Stripe.Customer;
       return await parseSubscription(customer);
     } else {
       debug('no customer id');
@@ -179,14 +194,13 @@ module.exports = function (stripe) {
   }
 
 
-  async function validateVatNumber(q) {
+  async function validateVatNumber(q: string): Promise<boolean> {
     const country = q.slice(0, 2);
     const number = q.slice(2);
     return await validateVat(country, number);
   }
 
-
-  async function manageSubscription(stripeCustomerId, opts = {}) {
+  async function manageSubscription(stripeCustomerId: string, opts: ManageSubscriptionOptions = {}): Promise<string> {
     const { plan, email, name, country, postcode, paymentMethod, coupon, trialDays, vat, taxOrigin, taxRates } = opts;
 
     // Maybe validate coupon
@@ -206,17 +220,17 @@ module.exports = function (stripe) {
       }
     }
 
-    let { tax_exempt, tax_id, tax_rate } = await getTax(country, vat, taxOrigin, taxRates);
+    const { tax_exempt, tax_id, tax_rate } = getTax(country, vat, taxOrigin, taxRates);
     debug('tax status: tax_exempt=' + tax_exempt);
 
-    let customer;
+    let customer: Stripe.Customer;
 
     // Retrieve customer
     if (stripeCustomerId) {
       debug('updating existing customer');
       try {
-        customer = await stripe.customers.retrieve(stripeCustomerId);
-        await stripe.customers.update(stripeCustomerId, { name, email, tax_exempt, address: { line1: '', country, postal_code: postcode } });
+        customer = (await stripe.customers.retrieve(stripeCustomerId)) as Stripe.Customer;
+        await stripe.customers.update(stripeCustomerId, { name, email, tax_exempt: (tax_exempt as Stripe.Customer.TaxExempt), address: { line1: '', country, postal_code: postcode } });
       } catch (err) {
         stripeCustomerId = null;
       }
@@ -225,7 +239,7 @@ module.exports = function (stripe) {
     // Create customer
     if (!stripeCustomerId) {
       debug('creating new customer');
-      customer = await stripe.customers.create({ name, email, tax_exempt, address: { line1: '', country, postal_code: postcode } });
+      customer = await stripe.customers.create({ name, email, tax_exempt: (tax_exempt as Stripe.Customer.TaxExempt), address: { line1: '', country, postal_code: postcode } });
       stripeCustomerId = customer.id;
     }
 
@@ -233,13 +247,13 @@ module.exports = function (stripe) {
     if (tax_id) {
       if (!customer.tax_ids.data.find(e => e.type == tax_id.type && e.value == tax_id.value)) {
         debug('adding tax id: ' + tax_id.type + ' ' + tax_id.value);
-        await stripe.customers.createTaxId(stripeCustomerId, tax_id);
+        await stripe.customers.createTaxId(stripeCustomerId, tax_id as Stripe.TaxIdCreateParams);
       } else {
         debug('tax id already exists');
       }
     } else {
       debug('removing tax id');
-      for (let e of customer.tax_ids.data) {
+      for (const e of customer.tax_ids.data) {
         await stripe.customers.deleteTaxId(stripeCustomerId, e.id);
       }
     }
@@ -263,7 +277,7 @@ module.exports = function (stripe) {
       });
       if (oldPaymentMethod) {
         debug('detach old payment method');
-        await stripe.paymentMethods.detach(oldPaymentMethod);
+        await stripe.paymentMethods.detach(oldPaymentMethod as string);
       }
     }
 
@@ -276,10 +290,15 @@ module.exports = function (stripe) {
       if (plan) {
         if (sub.plan.id !== plan) {
           debug('update subscription plan:', plan);
+          let trial_end;
+          if (trialDays) {
+
+            trial_end = moment().add(trialDays, 'days').valueOf();
+          }
           await stripe.subscriptions.update(sub.id, {
             default_tax_rates,
             coupon: coupon || undefined,
-            trial_period_days: trialDays || undefined,
+            trial_end,
             billing_cycle_anchor: 'now',
             items: [{ id: sub.items.data[0].id, plan }],
             off_session: true,
@@ -290,8 +309,9 @@ module.exports = function (stripe) {
       }
 
       if (sub.status == 'incomplete') {
-        const invoice = await stripe.invoices.retrieve(sub.latest_invoice, { expand: ['payment_intent'] });
-        if (invoice.payment_intent.status == 'requires_payment_method' || invoice.payment_intent.status == 'requires_confirmation') {
+        const invoice = await stripe.invoices.retrieve(sub.latest_invoice as string, { expand: ['payment_intent'] });
+        const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
+        if (paymentIntent.status == 'requires_payment_method' || paymentIntent.status == 'requires_confirmation') {
           try {
             debug('attempting invoice again...');
             await stripe.invoices.pay(invoice.id);
@@ -303,7 +323,7 @@ module.exports = function (stripe) {
 
       if (sub.status == 'past_due') {
         debug('attempt to pay latest invoice');
-        await stripe.invoices.pay(sub.latest_invoice);
+        await stripe.invoices.pay(sub.latest_invoice as string);
       }
 
     } else if (plan) { // allow creating a subscription with an existing default payment method!
@@ -318,7 +338,7 @@ module.exports = function (stripe) {
       });
       if (sub.status === 'incomplete') {
         debug('failed to create new sub:', sub.status);
-        // await stripe.subscriptions.del(sub.id); ???
+      // await stripe.subscriptions.del(sub.id); ???
       }
     }
 
@@ -329,17 +349,17 @@ module.exports = function (stripe) {
   /**
    * Cancel a subscription (default at period end).
    */
-  async function cancelSubscription(stripeCustomerId, atPeriodEnd = true) {
+  async function cancelSubscription(stripeCustomerId: string, atPeriodEnd = true): Promise<Stripe.Subscription> {
     const sub = await getSubscription(stripeCustomerId);
     if (sub.valid) {
       debug('canceling subscription atPeriodEnd=' + atPeriodEnd);
       const canceledSubscription = await stripe.subscriptions.update(sub.id, {
         cancel_at_period_end: atPeriodEnd
       });
-      return cancelSubscription;
+      return canceledSubscription;
     } else {
       debug('no subscription to cancel');
-      return false;
+      return null;
     }
   }
 
@@ -347,7 +367,7 @@ module.exports = function (stripe) {
   /**
    * Reactivate a subscription that has been cancelled (if at period end).
    */
-  async function reactivateSubscription(stripeCustomerId) {
+  async function reactivateSubscription(stripeCustomerId: string): Promise<boolean> {
     const sub = await getSubscription(stripeCustomerId);
     if (sub.valid) {
       debug('reactivating subscription');
@@ -363,7 +383,7 @@ module.exports = function (stripe) {
   /**
    * Delete a subscription immediately (e.g. when closing an account).
    */
-  async function deleteSubscription(stripeCustomerId) {
+  async function deleteSubscription(stripeCustomerId: string): Promise<boolean> {
     const sub = await getSubscription(stripeCustomerId);
     if (sub.valid) {
       debug('deleting subscription');
@@ -379,7 +399,7 @@ module.exports = function (stripe) {
   /**
    * Delete a subscription immediately (e.g. when closing an account).
    */
-  async function deleteCustomer(stripeCustomerId) {
+  async function deleteCustomer(stripeCustomerId: string): Promise<boolean> {
     if (stripeCustomerId) {
       await stripe.customers.del(stripeCustomerId);
       return true;
@@ -393,7 +413,7 @@ module.exports = function (stripe) {
   /**
    * List all receipts
    */
-  async function getReceipts(stripeCustomerId) {
+  async function getReceipts(stripeCustomerId: string): Promise<ParsedReceipt[]> {
     if (!stripeCustomerId) {
       debug('no customer id');
       return [];
@@ -413,9 +433,9 @@ module.exports = function (stripe) {
   /**
    * Validate coupon
    */
-  async function validateCoupon(coupon) {
+  async function validateCoupon(couponCode: string): Promise<boolean> {
     try {
-      const coupon = await stripe.coupons.retrieve(coupon);
+      const coupon = await stripe.coupons.retrieve(couponCode);
       return coupon.valid === true;
     } catch (err) {
       return false;
@@ -435,4 +455,4 @@ module.exports = function (stripe) {
     getReceipts,
     validateCoupon,
   };
-};
+}

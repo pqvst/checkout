@@ -1,5 +1,5 @@
-const { expect } = require('chai');
-const { formatUnixDate } = require('../lib/util');
+import { expect } from 'chai';
+import { formatUnixDate } from '../lib/util';
 
 describe('util.formatUnixDate', () => {
   
@@ -8,6 +8,7 @@ describe('util.formatUnixDate', () => {
   });
 
   it('invalid arg', () => {
+    // @ts-ignore
     expect(formatUnixDate('asdfkjasldf')).to.equal('');
   });
   
