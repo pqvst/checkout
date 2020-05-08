@@ -4,7 +4,6 @@
 // Test VAT number IE6388047V
 import Debug from 'debug';
 import Stripe from 'stripe';
-import moment from 'moment';
 
 const debug = Debug('checkout');
 import CREDIT_CARD_BRAND_NAMES from '../data/credit_card_brands';
@@ -132,14 +131,9 @@ export class Checkout {
       if (plan) {
         if (sub.plan.id !== plan) {
           debug('update subscription plan:', plan);
-          let trial_end;
-          if (trialDays) {
-            trial_end = moment().add(trialDays, 'days').valueOf();
-          }
           await this.stripe.subscriptions.update(sub.id, {
             default_tax_rates,
             coupon: coupon || undefined,
-            trial_end,
             billing_cycle_anchor: 'now',
             items: [{ id: sub.items.data[0].id, plan }],
             off_session: true,
