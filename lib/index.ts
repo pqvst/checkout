@@ -425,6 +425,4 @@ export class Checkout {
   }
 }
 
-export default function (stripe: Stripe): Checkout {
-  return new Checkout(stripe);
-}
+export default Checkout;

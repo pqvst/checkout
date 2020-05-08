@@ -40,4 +40,4 @@ export declare class Checkout {
     private parseCustomer;
     private parsePlan;
 }
-export default function (stripe: Stripe): Checkout;
+export default Checkout;
