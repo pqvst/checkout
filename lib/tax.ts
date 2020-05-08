@@ -1,7 +1,7 @@
-const EU_COUNTRY_CODES = require('../data/eu_country_codes');
+import EU_COUNTRY_CODES from '../data/eu_country_codes';
+import { TaxRates, TaxId, Tax } from './types';
 
-
-function getTaxExempt(country, taxNumber, taxOrigin) {
+export function getTaxExempt(country: string, taxNumber: string, taxOrigin: string): string {
   let tax_exempt = null;
   if (EU_COUNTRY_CODES.includes(country)) {
     // Selling to an EU country
@@ -20,7 +20,7 @@ function getTaxExempt(country, taxNumber, taxOrigin) {
 }
 
 
-function getTaxId(country, taxNumber) {
+export function getTaxId(country: string, taxNumber: string): TaxId {
   let tax_id = null;
   if (EU_COUNTRY_CODES.includes(country)) {
     if (taxNumber) {
@@ -31,7 +31,7 @@ function getTaxId(country, taxNumber) {
 }
 
 
-function getTaxRate(country, taxRates) {
+export function getTaxRate(country: string, taxRates: TaxRates): string {
   let tax_rate = null;
   if (taxRates) {
     if (country in taxRates) {
@@ -43,8 +43,7 @@ function getTaxRate(country, taxRates) {
   return tax_rate;
 }
 
-
-function getTax(country, taxNumber, taxOrigin, taxRates) {
+export function getTax(country: string, taxNumber: string, taxOrigin: string, taxRates: TaxRates): Tax {
   return {
     tax_exempt: getTaxExempt(country, taxNumber, taxOrigin),
     tax_id: getTaxId(country, taxNumber),
@@ -52,8 +51,7 @@ function getTax(country, taxNumber, taxOrigin, taxRates) {
   };
 }
 
-
-module.exports = {
+export default {
   getTax,
   getTaxExempt,
   getTaxId,

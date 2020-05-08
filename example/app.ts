@@ -1,9 +1,13 @@
-const path = require('path');
-const express = require('express');
-const bodyParser = require('body-parser');
-const morgan = require('morgan');
+import path from 'path';
+import express from 'express';
+import bodyParser from 'body-parser';
+import morgan from 'morgan';
+import Stripe from 'stripe';
+import dotenv from 'dotenv';
 
-require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+import Checkout from '../lib';
+
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const STRIPE_PUBLIC_KEY = process.env.STRIPE_PUBLIC_KEY;
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
@@ -19,9 +23,7 @@ if (!PREMIUM_PLAN_ID) {
 }
 
 
-const stripe = require('stripe')(STRIPE_SECRET_KEY);
-const checkout = require('../lib')(stripe);
-
+const checkout = Checkout(new Stripe(STRIPE_SECRET_KEY, null));
 
 // Setup express
 const app = express();

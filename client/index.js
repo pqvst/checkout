@@ -26,7 +26,7 @@ const defaults = {
   titleText: 'Payment Information',
   actionText: 'Continue',
   errorText: null,
-  
+
   showEmail: true,
   disableEmail: false,
   showName: true,
@@ -73,7 +73,7 @@ function Checkout(opts) {
       request.send();
     });
   }
-  
+
   function validateCoupon(coupon) {
     return new Promise(function (resolve) {
       const request = new XMLHttpRequest();
@@ -176,7 +176,7 @@ function Checkout(opts) {
         vat: null,
         coupon: null,
       },
-      
+
       // State
       editCard: true,
       processing: false,

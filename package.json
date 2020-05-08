@@ -2,19 +2,29 @@
   "name": "checkout",
   "version": "1.1.0",
   "description": "",
-  "main": "lib/index.js",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "scripts": {
-    "start": "concurrently -r \"npm run watch\" \"nodemon example/app\"",
-    "build": "webpack",
+    "start": "concurrently -r \"npm run watch\" \"nodemon --exec \"ts-node\" example/app\"",
+    "build": "tsc && webpack",
+    "webpack": "webpack",
     "watch": "webpack --watch",
     "lint": "eslint . --fix",
-    "test": "mocha"
+    "test": "mocha -r ts-node/register --extension js,ts"
   },
   "author": "pqvst",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.7.5",
     "@babel/preset-env": "^7.7.6",
+    "@types/body-parser": "^1.19.0",
+    "@types/debug": "^4.1.5",
+    "@types/express": "^4.17.6",
+    "@types/mocha": "^7.0.2",
+    "@types/morgan": "^1.9.0",
+    "@types/node": "^13.13.5",
+    "@typescript-eslint/eslint-plugin": "^2.31.0",
+    "@typescript-eslint/parser": "^2.31.0",
     "babel-loader": "^8.0.6",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
@@ -25,18 +35,25 @@
     "eslint": "^6.7.2",
     "express": "^4.17.1",
     "mocha": "^6.2.2",
-    "moment": "^2.24.0",
     "morgan": "^1.9.1",
     "nodemon": "^2.0.2",
     "pug": "^2.0.4",
     "pug-plain-loader": "^1.0.0",
     "raw-loader": "^4.0.0",
     "regenerator-runtime": "^0.13.3",
-    "stripe": "^7.14.0",
+    "stripe": "^8.49.0",
     "style-loader": "^1.0.1",
+    "ts-loader": "^7.0.3",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.8.3",
     "vue": "^2.6.11",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10"
   },
-  "dependencies": {}
+  "dependencies": {
+    "moment": "^2.25.3"
+  },
+  "peerDependencies": {
+    "stripe": "^8.49.0"
+  }
 }
