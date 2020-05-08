@@ -12,7 +12,7 @@ module.exports = {
   },
 
   output: {
-    filename: 'checkout.js',
+    filename: 'client/checkout.js',
   },
 
   module: {
