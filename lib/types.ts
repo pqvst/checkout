@@ -1,4 +1,3 @@
-import { Stripe } from 'stripe';
 
 interface TaxRateDefault {
   default: string;
@@ -17,7 +16,7 @@ export interface Tax {
   tax_rate: string;
 }
 
-export interface ParsedCard {
+export interface Card {
   brand: string;
   month: number;
   year: number;
@@ -25,7 +24,7 @@ export interface ParsedCard {
   summary: string;
 }
 
-export interface ParsedCustomer{
+export interface Customer {
   id: string;
   email: string;
   name: string;
@@ -33,26 +32,26 @@ export interface ParsedCustomer{
   postcode: string;
   vat: string;
 }
-export interface ParsedPlan {
+export interface Plan {
   id: string;
   name: string;
-  metadata: Stripe.Metadata;
+  metadata: object;
   amount: number;
   currency: string;
   interval: string;
 }
 
-export interface ParsedSubscription {
+export interface Subscription {
   valid: boolean;
   id?: string;
   cancelled?: boolean;
-  card?: ParsedCard;
-  plan?: ParsedPlan;
-  customer?: ParsedCustomer;
+  card?: Card;
+  plan?: Plan;
+  customer?: Customer;
   status?: string;
 }
 
-export interface ParsedReceipt {
+export interface Receipt {
   date: string;
   currency: string;
   amount: number;
@@ -60,26 +59,29 @@ export interface ParsedReceipt {
 }
 
 
-export interface ManageSubscriptionOptions{
+export interface ManageSubscriptionOptions {
   /**
-   * The plan ID
+   * Stripe plan ID
    */
   plan?: string;
   /**
-   * The user's email
+   * Customer email
    */
   email?: string;
   /**
-   * The user's name
+   * Customer name
    */
   name?: string;
   /**
-   * The user's country
+   * Customer country
    */
   country?: string;
+  /**
+   * Customer postcode
+   */
   postcode?: string;
   /**
-   * Stripe payment method ID
+   * New Stripe payment method ID
    */
   paymentMethod?: string;
   /**
@@ -87,11 +89,11 @@ export interface ManageSubscriptionOptions{
    */
   coupon?: string;
   /**
-   * Number of days to trial. If the subscription exists, extends the trial from today by this many days.
+   * Number of days to trial (only applicable for new subscriptions)
    */
   trialDays?: number;
   /**
-   * Stripe VAT ID
+   * Stripe tax ID
    */
   vat?: string;
   taxOrigin?: string;

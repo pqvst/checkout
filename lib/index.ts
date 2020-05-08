@@ -10,10 +10,11 @@ import CREDIT_CARD_BRAND_NAMES from '../data/credit_card_brands';
 import validateVat from './validate-vat';
 import { formatUnixDate } from './util';
 import { getTax } from './tax';
-import { ParsedCard, ParsedCustomer, ParsedPlan, ParsedReceipt, ParsedSubscription, ManageSubscriptionOptions } from './types';
+import { Card, Customer, Plan, Receipt, Subscription, ManageSubscriptionOptions } from './types';
 
-export class Checkout {
+export default class Checkout {
   private stripe: Stripe;
+
   constructor(stripe: Stripe) {
     if (!stripe) {
       throw new Error('You must provide a stripe instance');
@@ -24,7 +25,7 @@ export class Checkout {
     this.stripe = stripe;
   }
 
-  async getSubscription(stripeCustomerId: string): Promise<ParsedSubscription> {
+  async getSubscription(stripeCustomerId: string): Promise<Subscription> {
     if (stripeCustomerId) {
       debug('fetching subscriptions');
       const customer = (await this.stripe.customers.retrieve(stripeCustomerId, { expand: ['invoice_settings.default_payment_method', 'subscriptions.data.default_payment_method'] })) as Stripe.Customer;
@@ -183,7 +184,7 @@ export class Checkout {
   /**
    * Cancel a subscription (default at period end).
    */
-  async cancelSubscription(stripeCustomerId: string, atPeriodEnd = true): Promise<Stripe.Subscription> {
+  async cancelSubscription(stripeCustomerId: string, atPeriodEnd = true): Promise<void> {
     const sub = await this.getSubscription(stripeCustomerId);
     if (sub.valid) {
       debug('canceling subscription atPeriodEnd=' + atPeriodEnd);
@@ -241,7 +242,7 @@ export class Checkout {
   /**
    * List all receipts
    */
-  async getReceipts(stripeCustomerId: string): Promise<ParsedReceipt[]> {
+  async getReceipts(stripeCustomerId: string): Promise<Receipt[]> {
     if (!stripeCustomerId) {
       debug('no customer id');
       return [];
@@ -278,10 +279,10 @@ export class Checkout {
     return si.client_secret;
   }
 
-  private async parseSubscription(customer: Stripe.Customer): Promise<ParsedSubscription> {
+  private async parseSubscription(customer: Stripe.Customer): Promise<Subscription> {
     const sub = customer ? customer.subscriptions.data[0] : null;
 
-    const resp: ParsedSubscription = {
+    const resp: Subscription = {
       id: null,
       valid: false,
       cancelled: false,
@@ -356,7 +357,7 @@ export class Checkout {
     }
   }
 
-  private parseCard(card: Stripe.Card | Stripe.PaymentMethod.Card): ParsedCard {
+  private parseCard(card: Stripe.Card | Stripe.PaymentMethod.Card): Card {
     if (card) {
       const month = String(card.exp_month).padStart(2, '0');
       const year = String(card.exp_year).slice(2);
@@ -388,7 +389,7 @@ export class Checkout {
     }
   }
 
-  private parseCustomer(customer: Stripe.Customer): ParsedCustomer {
+  private parseCustomer(customer: Stripe.Customer): Customer {
     if (customer) {
       return {
         id: customer.id,
@@ -402,7 +403,7 @@ export class Checkout {
     return null;
   }
 
-  private parsePlan(sub: Stripe.Subscription): ParsedPlan {
+  private parsePlan(sub: Stripe.Subscription): Plan {
     if (sub && sub.plan) {
       return {
         id: sub.plan.id,
@@ -416,5 +417,3 @@ export class Checkout {
     return null;
   }
 }
-
-export default Checkout;
