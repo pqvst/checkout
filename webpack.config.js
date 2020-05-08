@@ -3,15 +3,16 @@ module.exports = {
   mode: 'production',
 
   entry: './client/index.js',
-  
+
   resolve: {
     alias: {
       'vue$': 'vue/dist/vue.esm.js'
-    }
+    },
+    extensions: ['.ts', '.js'],
   },
 
   output: {
-    filename: 'checkout.js',
+    filename: 'client/checkout.js',
   },
 
   module: {
@@ -44,6 +45,11 @@ module.exports = {
           }
         }
       },
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        use: 'ts-loader'
+      }
     ]
   },
 

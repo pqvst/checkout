@@ -1,9 +1,10 @@
-const { expect } = require('chai');
-const validateVat = require('../lib/validate-vat');
+import { expect } from 'chai';
+import validateVat from '../lib/validate-vat';
 
 describe('validate-vat', () => {
 
   it('empty', async () => {
+    // @ts-ignore
     expect(await validateVat()).to.equal(false);
   });
 

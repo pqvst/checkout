@@ -3,7 +3,7 @@
   "env": {
     "es6": true,
     "node": true,
-    "jest": true
+    "mocha": true
   },
   "parserOptions": {
     "ecmaVersion": 2017,
@@ -77,5 +77,39 @@
     "block-spacing": [
       "error"
     ]
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.ts"
+      ],
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
+      ],
+      "env": {
+        "es6": true,
+        "node": true,
+        "jest": true
+      },
+      "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module",
+        "parser": "@typescript-eslint/parser"
+      },
+      "rules": {
+        "@typescript-eslint/interface-name-prefix": "off",
+        "@typescript-eslint/indent": [
+          "error",
+          2,
+          {
+            "SwitchCase": 1
+          }
+        ],
+        "@typescript-eslint/camelcase": "off",
+        "@typescript-eslint/no-unused-vars": "error",
+        "@typescript-eslint/ban-ts-ignore":"off"
+      }
+    }
+  ]
 }

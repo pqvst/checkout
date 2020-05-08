@@ -1,11 +1,11 @@
-const url = require('url');
-const http = require('http');
+import url from 'url';
+import http from 'http';
 
 const serviceUrl = 'http://ec.europa.eu/taxation_customs/vies/services/checkVatService';
 
 const parsedUrl = url.parse(serviceUrl);
 
-function request(options, payload) {
+function request(options, payload): Promise<string> {
   return new Promise((resolve, reject) => {
     let buffer = '';
 
@@ -21,7 +21,7 @@ function request(options, payload) {
   });
 }
 
-module.exports = async function (countryCode, vatNumber) {
+export default async function (countryCode: string, vatNumber: string): Promise<boolean> {
   const payload = `
     <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
       xmlns:tns1="urn:ec.europa.eu:taxud:vies:services:checkVat:types"
@@ -59,4 +59,4 @@ module.exports = async function (countryCode, vatNumber) {
 
   const resp = await request(options, payload);
   return resp.includes('<valid>true</valid>');
-};
+}

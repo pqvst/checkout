@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   amex: 'American Express',
   diners: 'Diners Club',
   discover: 'Discover',

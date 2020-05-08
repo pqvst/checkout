@@ -1,5 +1,5 @@
-const { expect } = require('chai');
-const { getTaxExempt, getTaxId, getTaxRate, getTax } = require('../lib/tax');
+import { expect } from 'chai';
+import { getTaxExempt, getTaxId, getTaxRate, getTax } from '../lib/tax';
 
 describe('tax', () => {
 
@@ -10,6 +10,7 @@ describe('tax', () => {
   describe('.getTaxExempt', () => {
 
     it('empty', () => {
+      // @ts-ignore
       expect(getTaxExempt()).to.equal(null);
     });
     
@@ -52,10 +53,12 @@ describe('tax', () => {
   describe('.getTaxId', () => {
 
     it('empty', () => {
+      // @ts-ignore
       expect(getTaxId()).to.equal(null);
     });
 
     it('eu', () => {
+      // @ts-ignore
       expect(getTaxId('SE')).to.equal(null);
     });
 
@@ -64,6 +67,7 @@ describe('tax', () => {
     });
 
     it('non-eu', () => {
+      // @ts-ignore
       expect(getTaxId('US')).to.equal(null);
     });
 
@@ -80,14 +84,17 @@ describe('tax', () => {
   describe('.getTaxRate', () => {
 
     it('empty', () => {
+      // @ts-ignore
       expect(getTaxRate()).to.equal(null);
     });
 
     it('none', () => {
+      // @ts-ignore
       expect(getTaxRate('SE')).to.equal(null);
     });
 
     it('missing', () => {
+      // @ts-ignore
       expect(getTaxRate('US', {})).to.equal(null);
     });
 
@@ -108,6 +115,7 @@ describe('tax', () => {
   describe('.getTax', () => {
 
     it('empty', () => {
+      // @ts-ignore
       expect(getTax()).to.deep.equal({ tax_exempt: null, tax_id: null, tax_rate: null });
     });
     

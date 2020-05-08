@@ -13,7 +13,7 @@ A simple, open-source, lightweight, checkout page for [Stripe](https://stripe.co
 ## Quick Start
 
 ```
-npm install --save pqvst/checkout
+npm install --save pqvst/checkout:2.0.0
 ```
 
 #### app.js
@@ -25,7 +25,7 @@ const stripe = require('stripe')(STRIPE_SECRET_KEY);
 const checkout = require('checkout')(stripe);
 
 // Serve the client-side library
-app.use('/js/checkout.js', express.static('./node_modules/checkout/dist/checkout.js'));
+app.use('/js/checkout.js', express.static('./node_modules/checkout/dist/client/checkout.js'));
 
 // Render the payment form and pass options
 app.get('/upgrade', async (req, res) => {
@@ -198,6 +198,7 @@ Retrieve the current subscription status. Returns `valid: false` if there is no 
 - `plan` - Plan details (null if no plan)
 - `customer` - Customer details (null if no customer)
 - `status` - Text friendly description (see below)
+- `periodEnd` - Timestamp when current period ends
 
 #### Example response for a valid active subscription:
 A valid active subscription represents any state where the user is subscribed to a plan that is still active. This includes cases where the plan has been set to cancel at the end of the period (indicated by `cancelled` as `true`), or a first renewal attempt has failed to process.
