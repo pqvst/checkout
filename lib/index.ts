@@ -374,7 +374,7 @@ export class Checkout {
         month: card.exp_month,
         year: card.exp_year,
         last4: card.last4,
-        summary: `${brand} ending in ${card.last4} (${month}/${year})`
+        summary: `${brand} ends in ${card.last4} (Exp: ${month}/${year})`
       };
     } else {
       return null;
