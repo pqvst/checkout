@@ -2,7 +2,7 @@
 
 ### 2.0.1
 
-- Fixing `subscription.metadata`
+- Fixing `subscription.metadata` type
 
 ### 2.0.0
 
