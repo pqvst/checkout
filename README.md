@@ -25,7 +25,7 @@ const stripe = require('stripe')(STRIPE_SECRET_KEY);
 const checkout = require('checkout')(stripe);
 
 // Serve the client-side library
-app.use('/js/checkout.js', express.static('./node_modules/checkout/dist/checkout.js'));
+app.use('/js/checkout.js', express.static('./node_modules/checkout/dist/client/checkout.js'));
 
 // Render the payment form and pass options
 app.get('/upgrade', async (req, res) => {
