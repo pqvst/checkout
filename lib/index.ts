@@ -187,13 +187,11 @@ export class Checkout {
     const sub = await this.getSubscription(stripeCustomerId);
     if (sub.valid) {
       debug('canceling subscription atPeriodEnd=' + atPeriodEnd);
-      const canceledSubscription = await this.stripe.subscriptions.update(sub.id, {
+      await this.stripe.subscriptions.update(sub.id, {
         cancel_at_period_end: atPeriodEnd
       });
-      return canceledSubscription;
     } else {
       debug('no subscription to cancel');
-      return null;
     }
   }
 
