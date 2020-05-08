@@ -28,10 +28,13 @@ export interface Customer {
     postcode: string;
     vat: string;
 }
+export interface Metadata {
+    [name: string]: string;
+}
 export interface Plan {
     id: string;
     name: string;
-    metadata: object;
+    metadata: Metadata;
     amount: number;
     currency: string;
     interval: string;
