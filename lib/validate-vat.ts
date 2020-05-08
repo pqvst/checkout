@@ -1,5 +1,5 @@
-import * as url from 'url';
-import * as http from 'http';
+import url from 'url';
+import http from 'http';
 
 const serviceUrl = 'http://ec.europa.eu/taxation_customs/vies/services/checkVatService';
 
