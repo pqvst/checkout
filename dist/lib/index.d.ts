@@ -1,15 +1,15 @@
 import Stripe from 'stripe';
-import { ParsedReceipt, ParsedSubscription, ManageSubscriptionOptions } from './types';
-export declare class Checkout {
+import { Receipt, Subscription, ManageSubscriptionOptions } from './types';
+export default class Checkout {
     private stripe;
     constructor(stripe: Stripe);
-    getSubscription(stripeCustomerId: string): Promise<ParsedSubscription>;
+    getSubscription(stripeCustomerId: string): Promise<Subscription>;
     validateVatNumber(q: string): Promise<boolean>;
     manageSubscription(stripeCustomerId: string, opts?: ManageSubscriptionOptions): Promise<string>;
     /**
      * Cancel a subscription (default at period end).
      */
-    cancelSubscription(stripeCustomerId: string, atPeriodEnd?: boolean): Promise<Stripe.Subscription>;
+    cancelSubscription(stripeCustomerId: string, atPeriodEnd?: boolean): Promise<void>;
     /**
      * Reactivate a subscription that has been cancelled (if at period end).
      */
@@ -25,7 +25,7 @@ export declare class Checkout {
     /**
      * List all receipts
      */
-    getReceipts(stripeCustomerId: string): Promise<ParsedReceipt[]>;
+    getReceipts(stripeCustomerId: string): Promise<Receipt[]>;
     /**
      * Validate coupon
      */
@@ -40,4 +40,3 @@ export declare class Checkout {
     private parseCustomer;
     private parsePlan;
 }
-export default Checkout;

@@ -8,7 +8,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // Test failure: 4000000000000341
 // Test VAT number IE6388047V
 const debug_1 = __importDefault(require("debug"));
-const moment_1 = __importDefault(require("moment"));
 const debug = debug_1.default('checkout');
 const credit_card_brands_1 = __importDefault(require("../data/credit_card_brands"));
 const validate_vat_1 = __importDefault(require("./validate-vat"));
@@ -123,14 +122,9 @@ class Checkout {
             if (plan) {
                 if (sub.plan.id !== plan) {
                     debug('update subscription plan:', plan);
-                    let trial_end;
-                    if (trialDays) {
-                        trial_end = moment_1.default().add(trialDays, 'days').valueOf();
-                    }
                     await this.stripe.subscriptions.update(sub.id, {
                         default_tax_rates,
                         coupon: coupon || undefined,
-                        trial_end,
                         billing_cycle_anchor: 'now',
                         items: [{ id: sub.items.data[0].id, plan }],
                         off_session: true,
@@ -182,14 +176,12 @@ class Checkout {
         const sub = await this.getSubscription(stripeCustomerId);
         if (sub.valid) {
             debug('canceling subscription atPeriodEnd=' + atPeriodEnd);
-            const canceledSubscription = await this.stripe.subscriptions.update(sub.id, {
+            await this.stripe.subscriptions.update(sub.id, {
                 cancel_at_period_end: atPeriodEnd
             });
-            return canceledSubscription;
         }
         else {
             debug('no subscription to cancel');
-            return null;
         }
     }
     /**
@@ -293,7 +285,7 @@ class Checkout {
         resp.cancelled = false;
         switch (sub.status) {
             case 'trialing': {
-                resp.status = `Trialing until ${util_1.formatUnixDate(sub.trial_end)}`;
+                resp.status = `Trial ends ${util_1.formatUnixDate(sub.trial_end)}`;
                 return resp;
             }
             case 'active': {
@@ -354,7 +346,7 @@ class Checkout {
                 month: card.exp_month,
                 year: card.exp_year,
                 last4: card.last4,
-                summary: `${brand} ending in ${card.last4} (${month}/${year})`
+                summary: `${brand} ends in ${card.last4} (Exp: ${month}/${year})`
             };
         }
         else {
@@ -405,9 +397,5 @@ class Checkout {
         return null;
     }
 }
-exports.Checkout = Checkout;
-function default_1(stripe) {
-    return new Checkout(stripe);
-}
-exports.default = default_1;
+exports.default = Checkout;
 //# sourceMappingURL=index.js.map
