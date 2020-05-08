@@ -40,6 +40,7 @@ export interface Subscription {
     valid: boolean;
     id?: string;
     cancelled?: boolean;
+    periodEnd?: number;
     card?: Card;
     plan?: Plan;
     customer?: Customer;

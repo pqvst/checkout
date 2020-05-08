@@ -23,7 +23,7 @@ if (!PLAN_ID) {
 }
 
 
-const checkout = new Checkout(new Stripe(STRIPE_SECRET_KEY, null));
+const checkout = Checkout(new Stripe(STRIPE_SECRET_KEY, null));
 
 // Setup express
 const app = express();
