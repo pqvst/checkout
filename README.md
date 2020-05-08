@@ -198,6 +198,7 @@ Retrieve the current subscription status. Returns `valid: false` if there is no 
 - `plan` - Plan details (null if no plan)
 - `customer` - Customer details (null if no customer)
 - `status` - Text friendly description (see below)
+- `periodEnd` - Timestamp when current period ends
 
 #### Example response for a valid active subscription:
 A valid active subscription represents any state where the user is subscribed to a plan that is still active. This includes cases where the plan has been set to cancel at the end of the period (indicated by `cancelled` as `true`), or a first renewal attempt has failed to process.

@@ -286,6 +286,7 @@ export default class Checkout {
       id: null,
       valid: false,
       cancelled: false,
+      periodEnd: null,
       card: this.parseCard(this.getCard(customer, sub)),
       plan: this.parsePlan(sub),
       customer: this.parseCustomer(customer),
@@ -309,6 +310,7 @@ export default class Checkout {
 
       case 'active': {
         const periodEnd = formatUnixDate(sub.current_period_end);
+        resp.periodEnd = sub.current_period_end;
         if (sub.cancel_at_period_end) {
           resp.cancelled = true;
           resp.status = `Cancels on ${periodEnd}`;
