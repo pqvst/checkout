@@ -5,10 +5,8 @@
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
   "scripts": {
-    "start": "concurrently -r \"npm run watch\" \"nodemon --exec \"ts-node\" example/app\"",
+    "start": "concurrently -r \"webpack --watch\" \"ts-node-dev example/app\"",
     "build": "tsc && webpack",
-    "webpack": "webpack",
-    "watch": "webpack --watch",
     "lint": "eslint . --fix",
     "test": "mocha -r ts-node/register --extension js,ts"
   },
@@ -35,6 +33,7 @@
     "eslint": "^6.7.2",
     "express": "^4.17.1",
     "mocha": "^6.2.2",
+    "moment": "^2.25.3",
     "morgan": "^1.9.1",
     "nodemon": "^2.0.2",
     "pug": "^2.0.4",
@@ -44,15 +43,13 @@
     "stripe": "^8.49.0",
     "style-loader": "^1.0.1",
     "ts-loader": "^7.0.3",
-    "ts-node": "^8.10.1",
+    "ts-node-dev": "^1.0.0-pre.44",
     "typescript": "^3.8.3",
     "vue": "^2.6.11",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10"
   },
-  "dependencies": {
-    "moment": "^2.25.3"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "stripe": "^8.49.0"
   }
