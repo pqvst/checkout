@@ -310,7 +310,7 @@ export class Checkout {
     switch (sub.status) {
 
       case 'trialing': {
-        resp.status = `Trialing until ${formatUnixDate(sub.trial_end)}`;
+        resp.status = `Trial ends ${formatUnixDate(sub.trial_end)}`;
         return resp;
       }
 
