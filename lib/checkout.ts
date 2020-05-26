@@ -186,7 +186,7 @@ export default class Checkout {
    */
   async cancelSubscription(stripeCustomerId: string, atPeriodEnd = true): Promise<void> {
     const sub = await this.getSubscription(stripeCustomerId);
-    if (sub.valid) {
+    if (sub.plan) {
       debug('canceling subscription atPeriodEnd=' + atPeriodEnd);
       await this.stripe.subscriptions.update(sub.id, {
         cancel_at_period_end: atPeriodEnd
@@ -201,7 +201,7 @@ export default class Checkout {
    */
   async reactivateSubscription(stripeCustomerId: string): Promise<boolean> {
     const sub = await this.getSubscription(stripeCustomerId);
-    if (sub.valid) {
+    if (sub.plan) {
       debug('reactivating subscription');
       await this.stripe.subscriptions.update(sub.id, { cancel_at_period_end: false });
       return true;
@@ -216,7 +216,7 @@ export default class Checkout {
    */
   async deleteSubscription(stripeCustomerId: string): Promise<boolean> {
     const sub = await this.getSubscription(stripeCustomerId);
-    if (sub.valid) {
+    if (sub.plan) {
       debug('deleting subscription');
       await this.stripe.subscriptions.del(sub.id);
       return true;
