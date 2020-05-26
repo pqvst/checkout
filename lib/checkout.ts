@@ -299,23 +299,27 @@ export default class Checkout {
     // Defaults with a valid sub
     resp.id = sub.id;
     resp.valid = true;
-    resp.cancelled = false;
+    resp.cancelled = sub.cancel_at_period_end;
 
     switch (sub.status) {
 
-      case 'active':
-      case 'trialing': {
+      case 'active': {
         const periodEnd = formatUnixDate(sub.current_period_end);
         resp.periodEnd = sub.current_period_end;
-        if (sub.cancel_at_period_end) {
-          resp.cancelled = true;
+        if (resp.cancelled) {
           resp.status = `Cancels on ${periodEnd}`;
         } else {
-          if (sub.status == 'active') {
-            resp.status = `Renews on ${periodEnd}`;
-          } else {
-            resp.status = `Trial ends ${formatUnixDate(sub.trial_end)}`;
-          }
+          resp.status = `Renews on ${periodEnd}`;
+        }
+        return resp;
+      }
+
+      case 'trialing': {
+        const periodEnd = formatUnixDate(sub.current_period_end);
+        if (resp.cancelled) {
+          resp.status = `Cancels on ${periodEnd}`;
+        } else {
+          resp.status = `Trial ends ${formatUnixDate(sub.trial_end)}`;
         }
         return resp;
       }
@@ -340,6 +344,10 @@ export default class Checkout {
             }
             case 'requires_confirmation': {
               resp.status = 'Waiting for a new attempt';
+              break;
+            }
+            default: {
+              resp.status = 'Past due or incomplete payment';
               break;
             }
           }
