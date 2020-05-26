@@ -303,19 +303,19 @@ export default class Checkout {
 
     switch (sub.status) {
 
+      case 'active':
       case 'trialing': {
-        resp.status = `Trial ends ${formatUnixDate(sub.trial_end)}`;
-        return resp;
-      }
-
-      case 'active': {
         const periodEnd = formatUnixDate(sub.current_period_end);
         resp.periodEnd = sub.current_period_end;
         if (sub.cancel_at_period_end) {
           resp.cancelled = true;
           resp.status = `Cancels on ${periodEnd}`;
         } else {
-          resp.status = `Renews on ${periodEnd}`;
+          if (sub.status == 'active') {
+            resp.status = `Renews on ${periodEnd}`;
+          } else {
+            resp.status = `Trial ends ${formatUnixDate(sub.trial_end)}`;
+          }
         }
         return resp;
       }
