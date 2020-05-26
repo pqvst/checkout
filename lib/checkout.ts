@@ -326,29 +326,34 @@ export default class Checkout {
 
       case 'incomplete':
       case 'past_due': {
-        const invoice = await this.stripe.invoices.retrieve(sub.latest_invoice as string, {
-          expand: ['payment_intent']
-        });
-        const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
-        if (paymentIntent.last_payment_error) {
-          resp.status = paymentIntent.last_payment_error.message;
+        const periodEnd = formatUnixDate(sub.current_period_end);
+        if (resp.cancelled) {
+          resp.status = `Cancels on ${periodEnd}`;
         } else {
-          switch (paymentIntent.status) {
-            case 'requires_action': {
-              resp.status = 'Invalid payment method (requires action)';
-              break;
-            }
-            case 'requires_payment_method': {
-              resp.status = 'Invalid payment method';
-              break;
-            }
-            case 'requires_confirmation': {
-              resp.status = 'Waiting for a new attempt';
-              break;
-            }
-            default: {
-              resp.status = 'Past due or incomplete payment';
-              break;
+          const invoice = await this.stripe.invoices.retrieve(sub.latest_invoice as string, {
+            expand: ['payment_intent']
+          });
+          const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
+          if (paymentIntent.last_payment_error) {
+            resp.status = paymentIntent.last_payment_error.message;
+          } else {
+            switch (paymentIntent.status) {
+              case 'requires_action': {
+                resp.status = 'Invalid payment method (requires action)';
+                break;
+              }
+              case 'requires_payment_method': {
+                resp.status = 'Invalid payment method';
+                break;
+              }
+              case 'requires_confirmation': {
+                resp.status = 'Waiting for a new attempt';
+                break;
+              }
+              default: {
+                resp.status = 'Past due or incomplete payment';
+                break;
+              }
             }
           }
         }
