@@ -279,7 +279,7 @@ export default class Checkout {
     return si.client_secret;
   }
 
-  private async parseSubscription(customer: Stripe.Customer): Promise<Subscription> {
+  async parseSubscription(customer: Stripe.Customer): Promise<Subscription> {
     const sub = customer ? customer.subscriptions.data[0] : null;
 
     const resp: Subscription = {
