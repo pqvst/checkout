@@ -23,10 +23,19 @@ class Checkout {
         }
         this.stripe = stripe;
     }
+    async getExpandedCustomer(id, expand) {
+        const resp = await this.stripe.customers.retrieve(id, { expand });
+        return resp;
+    }
     async getSubscription(stripeCustomerId) {
         if (stripeCustomerId) {
             debug('fetching subscriptions');
-            const customer = (await this.stripe.customers.retrieve(stripeCustomerId, { expand: ['invoice_settings.default_payment_method', 'subscriptions.data.default_payment_method'] }));
+            const customer = await this.getExpandedCustomer(stripeCustomerId, [
+                'tax_ids',
+                'subscriptions',
+                'subscriptions.data.default_payment_method',
+                'invoice_settings.default_payment_method',
+            ]);
             return await this.parseSubscription(customer);
         }
         else {
@@ -58,13 +67,13 @@ class Checkout {
             }
         }
         const { tax_exempt, tax_id, tax_rate } = tax_1.getTax(country, vat, taxOrigin, taxRates);
-        debug('tax status: tax_exempt=' + tax_exempt);
+        debug(`tax: country=${country} vat=${vat} origin=${taxOrigin} -> exempt=${tax_exempt} id=${tax_id} rate=${tax_rate}`);
         let customer;
         // Retrieve customer
         if (stripeCustomerId) {
             debug('updating existing customer');
             try {
-                customer = (await this.stripe.customers.retrieve(stripeCustomerId));
+                customer = await this.getExpandedCustomer(stripeCustomerId, ['subscriptions', 'tax_ids']);
                 await this.stripe.customers.update(stripeCustomerId, { name, email, tax_exempt: tax_exempt, address: { line1: '', country, postal_code: postcode } });
             }
             catch (err) {
@@ -74,7 +83,13 @@ class Checkout {
         // Create customer
         if (!stripeCustomerId) {
             debug('creating new customer');
-            customer = await this.stripe.customers.create({ name, email, tax_exempt: tax_exempt, address: { line1: '', country, postal_code: postcode } });
+            customer = await this.stripe.customers.create({
+                name,
+                email,
+                tax_exempt: tax_exempt,
+                address: { line1: '', country, postal_code: postcode },
+                expand: ['subscriptions', 'tax_ids'],
+            });
             stripeCustomerId = customer.id;
         }
         // Maybe update tax id
@@ -120,7 +135,7 @@ class Checkout {
             debug('found subscription with status=' + sub.status);
             // Maybe change plan
             if (plan) {
-                if (sub.plan.id !== plan) {
+                if (sub.items.data[0].price.id !== plan) {
                     debug('update subscription plan:', plan);
                     await this.stripe.subscriptions.update(sub.id, {
                         default_tax_rates,
@@ -174,7 +189,7 @@ class Checkout {
      */
     async cancelSubscription(stripeCustomerId, atPeriodEnd = true) {
         const sub = await this.getSubscription(stripeCustomerId);
-        if (sub.valid) {
+        if (sub.plan) {
             debug('canceling subscription atPeriodEnd=' + atPeriodEnd);
             await this.stripe.subscriptions.update(sub.id, {
                 cancel_at_period_end: atPeriodEnd
@@ -189,7 +204,7 @@ class Checkout {
      */
     async reactivateSubscription(stripeCustomerId) {
         const sub = await this.getSubscription(stripeCustomerId);
-        if (sub.valid) {
+        if (sub.plan) {
             debug('reactivating subscription');
             await this.stripe.subscriptions.update(sub.id, { cancel_at_period_end: false });
             return true;
@@ -204,7 +219,7 @@ class Checkout {
      */
     async deleteSubscription(stripeCustomerId) {
         const sub = await this.getSubscription(stripeCustomerId);
-        if (sub.valid) {
+        if (sub.plan) {
             debug('deleting subscription');
             await this.stripe.subscriptions.del(sub.id);
             return true;
@@ -283,17 +298,12 @@ class Checkout {
         // Defaults with a valid sub
         resp.id = sub.id;
         resp.valid = true;
-        resp.cancelled = false;
+        resp.cancelled = sub.cancel_at_period_end;
         switch (sub.status) {
-            case 'trialing': {
-                resp.status = `Trial ends ${util_1.formatUnixDate(sub.trial_end)}`;
-                return resp;
-            }
             case 'active': {
                 const periodEnd = util_1.formatUnixDate(sub.current_period_end);
                 resp.periodEnd = sub.current_period_end;
-                if (sub.cancel_at_period_end) {
-                    resp.cancelled = true;
+                if (resp.cancelled) {
                     resp.status = `Cancels on ${periodEnd}`;
                 }
                 else {
@@ -301,28 +311,48 @@ class Checkout {
                 }
                 return resp;
             }
-            case 'incomplete':
-            case 'past_due': {
-                const invoice = await this.stripe.invoices.retrieve(sub.latest_invoice, {
-                    expand: ['payment_intent']
-                });
-                const paymentIntent = invoice.payment_intent;
-                if (paymentIntent.last_payment_error) {
-                    resp.status = paymentIntent.last_payment_error.message;
+            case 'trialing': {
+                const periodEnd = util_1.formatUnixDate(sub.current_period_end);
+                if (resp.cancelled) {
+                    resp.status = `Cancels on ${periodEnd}`;
                 }
                 else {
-                    switch (paymentIntent.status) {
-                        case 'requires_action': {
-                            resp.status = 'Invalid payment method (requires action)';
-                            break;
-                        }
-                        case 'requires_payment_method': {
-                            resp.status = 'Invalid payment method';
-                            break;
-                        }
-                        case 'requires_confirmation': {
-                            resp.status = 'Waiting for a new attempt';
-                            break;
+                    resp.status = `Trial ends ${util_1.formatUnixDate(sub.trial_end)}`;
+                }
+                return resp;
+            }
+            case 'incomplete':
+            case 'past_due': {
+                const periodEnd = util_1.formatUnixDate(sub.current_period_end);
+                if (resp.cancelled) {
+                    resp.status = `Cancels on ${periodEnd}`;
+                }
+                else {
+                    const invoice = await this.stripe.invoices.retrieve(sub.latest_invoice, {
+                        expand: ['payment_intent']
+                    });
+                    const paymentIntent = invoice.payment_intent;
+                    if (paymentIntent.last_payment_error) {
+                        resp.status = paymentIntent.last_payment_error.message;
+                    }
+                    else {
+                        switch (paymentIntent.status) {
+                            case 'requires_action': {
+                                resp.status = 'Invalid payment method (requires action)';
+                                break;
+                            }
+                            case 'requires_payment_method': {
+                                resp.status = 'Invalid payment method';
+                                break;
+                            }
+                            case 'requires_confirmation': {
+                                resp.status = 'Waiting for a new attempt';
+                                break;
+                            }
+                            default: {
+                                resp.status = 'Past due or incomplete payment';
+                                break;
+                            }
                         }
                     }
                 }
@@ -386,14 +416,15 @@ class Checkout {
         return null;
     }
     parsePlan(sub) {
-        if (sub && sub.plan) {
+        if (sub && sub.items.data[0]) {
+            const item = sub.items.data[0];
             return {
-                id: sub.plan.id,
-                name: sub.plan.nickname,
-                metadata: sub.plan.metadata,
-                amount: sub.plan.amount,
-                currency: sub.plan.currency,
-                interval: sub.plan.interval,
+                id: item.price.id,
+                name: item.price.nickname,
+                metadata: item.price.metadata,
+                amount: item.price.unit_amount,
+                currency: item.price.currency,
+                interval: item.price.recurring.interval,
             };
         }
         return null;

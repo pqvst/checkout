@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getTax = exports.getTaxRate = exports.getTaxId = exports.getTaxExempt = void 0;
 const eu_country_codes_1 = __importDefault(require("../data/eu_country_codes"));
 function getTaxExempt(country, taxNumber, taxOrigin) {
     let tax_exempt = null;
@@ -40,6 +41,9 @@ function getTaxRate(country, taxRates) {
     if (taxRates) {
         if (country in taxRates) {
             tax_rate = taxRates[country];
+        }
+        else if (taxRates.eu && eu_country_codes_1.default.includes(country)) {
+            tax_rate = taxRates.eu;
         }
         else if (taxRates.default) {
             tax_rate = taxRates.default;

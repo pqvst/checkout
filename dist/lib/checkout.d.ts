@@ -3,6 +3,7 @@ import { Receipt, Subscription, ManageSubscriptionOptions } from './types';
 export default class Checkout {
     private stripe;
     constructor(stripe: Stripe);
+    getExpandedCustomer(id: string, expand?: string[]): Promise<Stripe.Customer>;
     getSubscription(stripeCustomerId: string): Promise<Subscription>;
     validateVatNumber(q: string): Promise<boolean>;
     manageSubscription(stripeCustomerId: string, opts?: ManageSubscriptionOptions): Promise<string>;
