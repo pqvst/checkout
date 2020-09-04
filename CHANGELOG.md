@@ -1,5 +1,10 @@
 # Changelog
 
+### 2.2.0
+
+- Fixing compatibility with stripe api version 2020-08-27
+- Adding option to specify a tax rate for eu countries only
+
 ### 2.1.0
 
 - Fixed not able to cancel/reactivate/delete past_due and incomplete subscriptions.
