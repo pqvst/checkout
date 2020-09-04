@@ -295,21 +295,28 @@ taxOrigin | string | Your tax origin used to determine taxation
 You can apply a default tax rate for all customers or individual per-country tax rates. By default all customers are set to `taxable`, unless overridden by `taxExempt` or by automatic [VAT Collection](#vat-collection).
 
 Apply a default tax rate to all customers:
+
 ```js
-{ default: '...' }
+{ default: 'txr_...' }
+```
+
+Apply a tax rate to eu customers only:
+
+```js
+{ eu: 'txr_...' }
 ```
 
 Only apply a tax rate for `GB` customers:
 
 ```js
-{ GB: '...' }
+{ GB: 'txr_...' }
 ```
 
 Apply a specific tax rate for `US` customers, otherwise use the default tax rate:
 
 ```js
-{ US: '...',
-  default: '...' }
+{ US: 'txr_...',
+  default: 'txr_...' }
 ```
 
 A tax rate should be a valid Stripe `tax_rate` object ID.
