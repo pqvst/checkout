@@ -70,6 +70,7 @@ app.get('/card', async (req, res) => {
       titleText: 'Update card details',
       actionText: 'Save',
       prefill: sub,
+      showCountry: true,
     }
   });
 });
@@ -81,8 +82,9 @@ app.post('/card', async (req, res) => {
       name: req.body.name,
       country: req.body.country,
       postcode: req.body.postcode,
-      vat: req.body.vat,
       paymentMethod: req.body.paymentMethod,
+      taxRates: { default: 'txr_1F2HtWATZ14HzUt2RHCIJ6aw' },
+      taxOrigin: 'SE',
     });
     res.redirect('/?customer=' + req.query.customer);
   } catch (err) {
@@ -104,6 +106,7 @@ app.get('/upgrade', async (req, res) => {
       actionText: 'Upgrade',
       couponValidationUrl: '/validateCoupon',
       prefill: sub,
+      showCountry: true,
     }
   });
 });
@@ -116,9 +119,10 @@ app.post('/upgrade', async (req, res) => {
       name: req.body.name,
       country: req.body.country,
       postcode: req.body.postcode,
-      vat: req.body.vat,
       coupon: req.body.coupon,
       paymentMethod: req.body.paymentMethod,
+      taxRates: { default: 'txr_1F2HtWATZ14HzUt2RHCIJ6aw' },
+      taxOrigin: 'SE',
     });
     res.redirect('/?customer=' + stripeCustomerId);
   } catch (err) {
