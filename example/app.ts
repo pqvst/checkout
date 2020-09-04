@@ -26,7 +26,7 @@ if (!PLAN_ID) {
 }
 
 
-const checkout = Checkout(new Stripe(STRIPE_SECRET_KEY, null));
+const checkout = Checkout(new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2020-08-27' }));
 
 // Setup express
 const app = express();

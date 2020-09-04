@@ -25,10 +25,20 @@ export default class Checkout {
     this.stripe = stripe;
   }
 
+  async getExpandedCustomer(id: string, expand?: string[]): Promise<Stripe.Customer> {
+    const resp = await this.stripe.customers.retrieve(id, { expand });
+    return resp as Stripe.Customer;
+  }
+
   async getSubscription(stripeCustomerId: string): Promise<Subscription> {
     if (stripeCustomerId) {
       debug('fetching subscriptions');
-      const customer = (await this.stripe.customers.retrieve(stripeCustomerId, { expand: ['invoice_settings.default_payment_method', 'subscriptions.data.default_payment_method'] })) as Stripe.Customer;
+      const customer = await this.getExpandedCustomer(stripeCustomerId, [
+        'tax_ids',
+        'subscriptions',
+        'subscriptions.data.default_payment_method',
+        'invoice_settings.default_payment_method',
+      ]);
       return await this.parseSubscription(customer);
     } else {
       debug('no customer id');
@@ -71,7 +81,7 @@ export default class Checkout {
     if (stripeCustomerId) {
       debug('updating existing customer');
       try {
-        customer = (await this.stripe.customers.retrieve(stripeCustomerId)) as Stripe.Customer;
+        customer = await this.getExpandedCustomer(stripeCustomerId, ['subscriptions', 'tax_ids']);
         await this.stripe.customers.update(stripeCustomerId, { name, email, tax_exempt: (tax_exempt as Stripe.Customer.TaxExempt), address: { line1: '', country, postal_code: postcode } });
       } catch (err) {
         stripeCustomerId = null;
@@ -81,7 +91,13 @@ export default class Checkout {
     // Create customer
     if (!stripeCustomerId) {
       debug('creating new customer');
-      customer = await this.stripe.customers.create({ name, email, tax_exempt: (tax_exempt as Stripe.Customer.TaxExempt), address: { line1: '', country, postal_code: postcode } });
+      customer = await this.stripe.customers.create({ 
+        name,
+        email,
+        tax_exempt: (tax_exempt as Stripe.Customer.TaxExempt),
+        address: { line1: '', country, postal_code: postcode },
+        expand: ['subscriptions', 'tax_ids'],
+      });
       stripeCustomerId = customer.id;
     }
 
