@@ -14,6 +14,9 @@ const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 const PLAN_ID = process.env.PLAN_ID;
 const PORT = process.env.PORT || 3000;
 
+const TAX_RATES = { eu: 'txr_1HHlhiATZ14HzUt2zBY1XkBb' };
+const TAX_ORIGIN = 'SE';
+
 
 if (!STRIPE_PUBLIC_KEY || !STRIPE_SECRET_KEY) {
   throw new Error('You must add your stripe public and secret key.');
@@ -83,8 +86,8 @@ app.post('/card', async (req, res) => {
       country: req.body.country,
       postcode: req.body.postcode,
       paymentMethod: req.body.paymentMethod,
-      taxRates: { default: 'txr_1F2HtWATZ14HzUt2RHCIJ6aw' },
-      taxOrigin: 'SE',
+      taxRates: TAX_RATES,
+      taxOrigin: TAX_ORIGIN,
     });
     res.redirect('/?customer=' + req.query.customer);
   } catch (err) {
@@ -121,8 +124,8 @@ app.post('/upgrade', async (req, res) => {
       postcode: req.body.postcode,
       coupon: req.body.coupon,
       paymentMethod: req.body.paymentMethod,
-      taxRates: { default: 'txr_1F2HtWATZ14HzUt2RHCIJ6aw' },
-      taxOrigin: 'SE',
+      taxRates: TAX_RATES,
+      taxOrigin: TAX_ORIGIN,
     });
     res.redirect('/?customer=' + stripeCustomerId);
   } catch (err) {
