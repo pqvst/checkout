@@ -63,7 +63,7 @@ export default class Checkout {
     }
 
     const { tax_exempt, tax_id, tax_rate } = getTax(country, vat, taxOrigin, taxRates);
-    debug('tax status: tax_exempt=' + tax_exempt);
+    debug(`tax: country=${country} vat=${vat} origin=${taxOrigin} -> exempt=${tax_exempt} id=${tax_id} rate=${tax_rate}`);
 
     let customer: Stripe.Customer;
 
