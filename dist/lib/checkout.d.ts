@@ -34,7 +34,7 @@ export default class Checkout {
        * Get setup intent client secret for payment method form.
        */
     getClientSecret(): Promise<string>;
-    private parseSubscription;
+    parseSubscription(customer: Stripe.Customer): Promise<Subscription>;
     private parseCard;
     private getCard;
     private parseCustomer;
