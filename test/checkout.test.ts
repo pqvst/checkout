@@ -32,6 +32,18 @@ const customer = {
   },
 } as Stripe.Customer;
 
+const subscriptionItem = {
+  price: {
+    id: 'priceid',
+    currency: 'usd',
+    nickname: 'plan',
+    unit_amount: 1000,
+    recurring: {
+      interval: 'month'
+    }
+  }
+} as Stripe.SubscriptionItem;
+
 describe('checkout', function () {
 
   describe('.parseSubscription', function () {
@@ -113,6 +125,9 @@ describe('checkout', function () {
             current_period_end: 1000000,
             cancelled: false,
             cancel_at_period_end: false,
+            items: {
+              data: [subscriptionItem]
+            }
           }]
         }
       });
@@ -131,6 +146,9 @@ describe('checkout', function () {
             trial_end: 1000000,
             cancel_at_period_end: false,
             cancelled: false,
+            items: {
+              data: [subscriptionItem]
+            }
           }]
         }
       });
@@ -160,6 +178,9 @@ describe('checkout', function () {
             current_period_end: 1000000,
             cancel_at_period_end: true,
             cancelled: false,
+            items: {
+              data: [subscriptionItem]
+            }
           }]
         }
       });
@@ -177,6 +198,9 @@ describe('checkout', function () {
             current_period_end: 1000000,
             cancel_at_period_end: true,
             cancelled: false,
+            items: {
+              data: [subscriptionItem]
+            }
           }]
         }
       });
@@ -194,6 +218,9 @@ describe('checkout', function () {
             current_period_end: 1000000,
             cancel_at_period_end: true,
             cancelled: false,
+            items: {
+              data: [subscriptionItem]
+            }
           }]
         }
       });
@@ -211,6 +238,9 @@ describe('checkout', function () {
             current_period_end: 1000000,
             cancel_at_period_end: true,
             cancelled: false,
+            items: {
+              data: [subscriptionItem]
+            }
           }]
         }
       });

@@ -130,7 +130,7 @@ export default class Checkout {
 
       // Maybe change plan
       if (plan) {
-        if (sub.plan.id !== plan) {
+        if (sub.items.data[0].price.id !== plan) {
           debug('update subscription plan:', plan);
           await this.stripe.subscriptions.update(sub.id, {
             default_tax_rates,
@@ -419,14 +419,15 @@ export default class Checkout {
   }
 
   private parsePlan(sub: Stripe.Subscription): Plan {
-    if (sub && sub.plan) {
+    if (sub && sub.items.data[0]) {
+      const item = sub.items.data[0];
       return {
-        id: sub.plan.id,
-        name: sub.plan.nickname,
-        metadata: sub.plan.metadata,
-        amount: sub.plan.amount,
-        currency: sub.plan.currency,
-        interval: sub.plan.interval,
+        id: item.price.id,
+        name: item.price.nickname,
+        metadata: item.price.metadata,
+        amount: item.price.unit_amount,
+        currency: item.price.currency,
+        interval: item.price.recurring.interval,
       };
     }
     return null;
