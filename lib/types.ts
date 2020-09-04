@@ -1,9 +1,10 @@
 
-interface TaxRateDefault {
-  default: string;
+interface TaxRateBase {
+  default?: string;
+  eu?: string;
 }
 
-export type TaxRates = TaxRateDefault & {[key: string]: string};
+export type TaxRates = TaxRateBase & {[key: string]: string};
 
 export interface TaxId {
   type: string;

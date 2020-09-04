@@ -36,6 +36,8 @@ export function getTaxRate(country: string, taxRates: TaxRates): string {
   if (taxRates) {
     if (country in taxRates) {
       tax_rate = taxRates[country];
+    } else if (taxRates.eu && EU_COUNTRY_CODES.includes(country)) {
+      tax_rate = taxRates.eu;
     } else if (taxRates.default) {
       tax_rate = taxRates.default;
     }

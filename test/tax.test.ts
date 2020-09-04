@@ -106,6 +106,14 @@ describe('tax', () => {
       expect(getTaxRate('US', { US: 'us_tax_rate', default: 'default_tax_rate' })).to.equal('us_tax_rate');
     });
 
+    it('eu', () => {
+      expect(getTaxRate('SE', { eu: 'eu_tax_rate', default: 'default_tax_rate' })).to.equal('eu_tax_rate');
+    });
+
+    it('non-eu', () => {
+      expect(getTaxRate('TW', { eu: 'eu_tax_rate', default: 'default_tax_rate' })).to.equal('default_tax_rate');
+    });
+
   });
 
   //--------------------------------------------------------------------------------
