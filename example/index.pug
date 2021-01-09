@@ -2,6 +2,7 @@ html
   head
     title Home
     meta(name="viewport" content="width=device-width, initial-scale=1")
+    script(src="https://js.stripe.com/v3/")
 
     style.
       body { font-family: sans-serif; margin: 30px; }
@@ -40,6 +41,13 @@ html
       p No active plan.
       .buttons
         a(href="/upgrade?customer="+customer) Upgrade
+
+    if sub.requiresAction
+      script.
+        const stripe = Stripe('#{stripePublicKey}');
+        stripe.confirmCardPayment('#{sub.requiresAction}').then(() => {
+          location.reload(); // reload the page to update the status info
+        });
 
     if receipts.length
       h2 Receipts

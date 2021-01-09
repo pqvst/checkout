@@ -56,6 +56,7 @@ export interface Subscription {
   plan?: Plan;
   customer?: Customer;
   status?: string;
+  requiresAction?: string;
 }
 
 export interface Receipt {

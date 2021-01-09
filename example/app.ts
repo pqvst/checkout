@@ -59,6 +59,7 @@ app.get('/', async (req, res) => {
     customer: req.query.customer || '',
     sub: await checkout.getSubscription(req.query.customer as string),
     receipts: await checkout.getReceipts(req.query.customer as string),
+    stripePublicKey: STRIPE_PUBLIC_KEY,
   });
 });
 

@@ -306,6 +306,7 @@ export default class Checkout {
       card: this.parseCard(this.getCard(customer, sub)),
       plan: this.parsePlan(sub),
       customer: this.parseCustomer(customer),
+      requiresAction: null,
     };
 
     if (!sub) {
@@ -356,6 +357,7 @@ export default class Checkout {
             switch (paymentIntent.status) {
               case 'requires_action': {
                 resp.status = 'Invalid payment method (requires action)';
+                resp.requiresAction = paymentIntent.client_secret;
                 break;
               }
               case 'requires_payment_method': {
