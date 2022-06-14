@@ -35,6 +35,7 @@ export default class Checkout {
       debug('fetching subscriptions');
       const customer = await this.getExpandedCustomer(stripeCustomerId, [
         'tax_ids',
+        'sources',
         'subscriptions',
         'subscriptions.data.default_payment_method',
         'invoice_settings.default_payment_method',
@@ -91,7 +92,7 @@ export default class Checkout {
     // Create customer
     if (!stripeCustomerId) {
       debug('creating new customer');
-      customer = await this.stripe.customers.create({ 
+      customer = await this.stripe.customers.create({
         name,
         email,
         tax_exempt: (tax_exempt as Stripe.Customer.TaxExempt),
